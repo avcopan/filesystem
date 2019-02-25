@@ -1,0 +1,16 @@
+name: filesystem-env
+
+channels:
+    - pacchem
+    - rdkit      # for autochem dependency
+    - openbabel  # for autochem dependency
+
+dependencies:
+    - python
+    - numpy
+    - pytest
+    - pytest-cov
+    - future
+    - flake8
+    - pylint
+    - pacchem::autochem
