@@ -25,11 +25,11 @@ def geometry(file_name, geo):
     _write(file_name, xyz_str)
 
 
-def zmatrix(file_name, zma, var_dct=None):
+def zmatrix(file_name, zma):
     """ write a zmatrix (bohr/radian) to a file (angstroms/degree)
     """
     assert file_name == _zmatrix_file_name(file_name)
-    zma_str = automol.zmatrix.zmat_string(zma, var_dct=var_dct)
+    zma_str = automol.zmatrix.zmat_string(zma)
     _write(file_name, zma_str)
 
 
