@@ -47,38 +47,28 @@ def test__geometry():
 def test__zmatrix():
     """ test the zmatrix read/write functions
     """
-    ref_zma = (('C', (None, None, None), (None, None, None)),
-               ('O', (0, None, None), (5.0556787897, None, None)),
-               ('H', (0, 1, None), (3.902303346, 1.91162422312, None)),
-               ('H', (0, 1, 2), (3.902303346, 1.91162422312, 2.10849736274)),
-               ('H', (0, 1, 2), (3.90149076409, 1.90209472540, 4.1958413349)),
-               ('H', (1, 0, 2), (3.472333961, 1.86909054925, 5.22893662580)))
-    ref_var_dct = {
-        (1, 0): 'R1',
-        (2, 0): 'R2',
-        (3, 0): 'R3',
-        (4, 0): 'R4',
-        (5, 1): 'R5',
-        (2, 0, 1): 'A2',
-        (3, 0, 1): 'A3',
-        (4, 0, 1): 'A4',
-        (5, 1, 0): 'A5',
-        (3, 0, 1, 2): 'D3',
-        (4, 0, 1, 2): 'D4',
-        (5, 1, 0, 2): 'D5'
-    }
+    ref_zma = (
+        (('C', (None, None, None), (None, None, None)),
+         ('O', (0, None, None), ('R1', None, None)),
+         ('H', (0, 1, None), ('R2', 'A2', None)),
+         ('H', (0, 1, 2), ('R3', 'A3', 'D3')),
+         ('H', (0, 1, 2), ('R4', 'A4', 'D4')),
+         ('H', (1, 0, 2), ('R5', 'A5', 'D5'))),
+        {'R1': 2.67535, 'R2': 2.06501, 'A2': 1.9116242,
+         'R3': 2.06501, 'A3': 1.9116242, 'D3': 2.108497362,
+         'R4': 2.06458, 'A4': 1.9020947, 'D4': 4.195841334,
+         'R5': 1.83748, 'A5': 1.8690905, 'D5': 5.228936625})
 
     file_prefix = os.path.join(TMP_DIR, 'ch3oh')
     file_name = autofile.name.zmatrix(file_prefix)
 
     assert not os.path.isfile(file_name)
-    autofile.write.zmatrix(file_name, ref_zma, var_dct=ref_var_dct)
+    autofile.write.zmatrix(file_name, ref_zma)
     assert os.path.isfile(file_name)
 
-    zma, var_dct = autofile.read.zmatrix(file_name)
+    zma = autofile.read.zmatrix(file_name)
 
     assert automol.zmatrix.almost_equal(zma, ref_zma)
-    assert ref_var_dct == var_dct
 
 
 if __name__ == '__main__':

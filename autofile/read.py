@@ -24,8 +24,8 @@ def zmatrix(file_name):
     """ read a zmatrix (bohr/radian) from a file (angstrom/degree)
     """
     file_str = _read(file_name)
-    zma, var_dct = automol.zmatrix.from_zmat_string(file_str)
-    return zma, var_dct
+    zma = automol.zmatrix.from_zmat_string(file_str)
+    return zma
 
 
 def _read(file_name):
