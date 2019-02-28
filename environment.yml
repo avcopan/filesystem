@@ -8,6 +8,7 @@ channels:
 dependencies:
     - python
     - numpy
+    - pyyaml
     - pytest
     - pytest-cov
     - future
