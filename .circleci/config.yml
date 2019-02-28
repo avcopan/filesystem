@@ -24,6 +24,14 @@ jobs:
                     pytest -v --cov=autofile --pyargs autofile
                     flake8 --exit-zero autommol
                     pylint --rcfile=../.pylintrc autofile
+            - run:
+                name: Test autodir
+                command: |
+                    source activate filesystem-env
+                    cd autodir
+                    pytest -v --cov=autodir --pyargs autodir
+                    flake8 --exit-zero autommol
+                    pylint --rcfile=../.pylintrc autodir
 workflows:
     version: 2
     build-all:
