@@ -1,38 +1,54 @@
-""" file writers
+""" string writers
 """
 from numbers import Real as _Real
+import yaml
 import automol
-from ._name import energy as _energy_file_name
-from ._name import geometry as _geometry_file_name
-from ._name import zmatrix as _zmatrix_file_name
 
 
-def energy(file_name, ene):
-    """ write an energy (hartree) to a file (hartree)
+def information(inf):
+    """ write information (any dict/list combination) to a string
     """
-    assert file_name == _energy_file_name(file_name)
-    assert isinstance(ene, _Real)
-    ene_str = str(ene)
-    _write(file_name, ene_str)
+    inf_str = yaml.dump(inf, default_flow_style=False)
+    return inf_str
 
 
-def geometry(file_name, geo):
-    """ write a geometry (bohr) to a file (angstrom)
+def energy(ene):
+    """ write an energy (hartree) to a string (hartree)
     """
-    assert file_name == _geometry_file_name(file_name)
+    ene_str = _float(ene)
+    return ene_str
+
+
+def geometry(geo):
+    """ write a geometry (bohr) to a string (angstrom)
+    """
     assert automol.geom.is_valid(geo)
     xyz_str = automol.geom.xyz_string(geo)
-    _write(file_name, xyz_str)
+    return xyz_str
 
 
-def zmatrix(file_name, zma):
-    """ write a zmatrix (bohr/radian) to a file (angstroms/degree)
+def zmatrix(zma):
+    """ write a zmatrix (bohr/radian) to a string (angstroms/degree)
     """
-    assert file_name == _zmatrix_file_name(file_name)
     zma_str = automol.zmatrix.zmat_string(zma)
-    _write(file_name, zma_str)
+    return zma_str
 
 
-def _write(file_name, string):
-    with open(file_name, 'w') as file_obj:
-        file_obj.write(string)
+def lennard_jones_epsilon(eps):
+    """ write a lennard-jones epsilon (waveunmbers) to a string (wavenumbers)
+    """
+    eps_str = _float(eps)
+    return eps_str
+
+
+def lennard_jones_sigma(sig):
+    """ write a lennard-jones sigma (angstrom) to a string (angstrom)
+    """
+    sig_str = _float(sig)
+    return sig_str
+
+
+def _float(val):
+    assert isinstance(val, _Real)
+    val_str = str(val)
+    return val_str
