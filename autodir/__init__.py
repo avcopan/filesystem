@@ -1,9 +1,15 @@
 """ defines standard directory paths for quantum chemistry data
 """
+from . import schema
+# schemata
 from . import species
-from ._util import create_path
+from . import theory
+from . import lj
 
 __all__ = [
+    'schema',
+    # schemata
     'species',
-    'create_path',
+    'theory',
+    'lj',
 ]

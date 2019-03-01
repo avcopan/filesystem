@@ -3,15 +3,12 @@
 import os.path
 
 
-def create_path(prefix, path_info):
-    """ create a directory path with information files
+def create(prefix, schem):
+    """ create directory and files for a given schema
     """
     assert os.path.isdir(prefix)
-    assert len(path_info) == 2
 
-    dir_path, file_spec_dct = path_info
-    assert isinstance(dir_path, str)
-    assert isinstance(file_spec_dct, dict)
+    dir_path, file_spec_dct = _validate_schem(schem)
 
     file_paths = tuple(file_spec_dct.keys())
     file_strs = tuple(file_spec_dct.values())
@@ -31,6 +28,19 @@ def create_path(prefix, path_info):
     # write the information files
     for file_path, file_str in zip(file_paths, file_strs):
         _write(file_path, file_str)
+
+    return dir_path
+
+
+def _validate_schem(schem):
+    assert len(schem) == 2
+
+    dir_path, file_spec_dct = schem
+    assert isinstance(dir_path, str)
+    assert isinstance(file_spec_dct, dict)
+    assert not os.path.isabs(dir_path)
+    assert not any(map(os.path.isabs, file_spec_dct))
+    return schem
 
 
 def _normalized_path(prefix, path):

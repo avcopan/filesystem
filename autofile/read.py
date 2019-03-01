@@ -1,34 +1,53 @@
-""" file readers
+""" string readers
 """
+import yaml
 import automol
 import autoparse.find as apf
 
 
-def energy(file_name):
-    """ read an energy (hartree) from a file (hartree)
+def information(inf_str):
+    """ read information (any dict/list combination) from a string
     """
-    file_str = _read(file_name)
-    assert apf.is_number(apf.strip_spaces(file_str))
-    return float(file_str)
+    inf = yaml.load(inf_str)
+    return inf
 
 
-def geometry(file_name):
-    """ read a geometry (bohr) from a file (angstrom)
+def energy(ene_str):
+    """ read an energy (hartree) from a string (hartree)
     """
-    file_str = _read(file_name)
-    geo = automol.geom.from_xyz_string(file_str)
+    ene = _float(ene_str)
+    return ene
+
+
+def geometry(xyz_str):
+    """ read a geometry (bohr) from a string (angstrom)
+    """
+    geo = automol.geom.from_xyz_string(xyz_str)
     return geo
 
 
-def zmatrix(file_name):
-    """ read a zmatrix (bohr/radian) from a file (angstrom/degree)
+def zmatrix(zma_str):
+    """ read a zmatrix (bohr/radian) from a string (angstrom/degree)
     """
-    file_str = _read(file_name)
-    zma = automol.zmatrix.from_zmat_string(file_str)
+    zma = automol.zmatrix.from_zmat_string(zma_str)
     return zma
 
 
-def _read(file_name):
-    with open(file_name, 'r') as file_obj:
-        file_str = file_obj.read()
-    return file_str
+def lennard_jones_epsilon(eps_str):
+    """ read a lennard-jones epsilon (waveunmbers) from a string (wavenumbers)
+    """
+    eps = _float(eps_str)
+    return eps
+
+
+def lennard_jones_sigma(sig_str):
+    """ read a lennard-jones sigma (angstrom) from a string (angstrom)
+    """
+    sig = _float(sig_str)
+    return sig
+
+
+def _float(val_str):
+    assert apf.is_number(val_str)
+    val = float(val_str)
+    return val
