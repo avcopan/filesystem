@@ -1,9 +1,106 @@
 """ lennard-jones filesystem
 """
 import os
+import numbers
 import autofile
-from .params import PREFIX as _PREFIX
+from autodir.params import FILExPREFIX as _FILExPREFIX
 
+
+# filesystem create/read/write functions
+def create(prefix, bath, pot):
+    """ create this filesystem path
+    """
+    dir_path = directory_path(prefix, bath, pot)
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
+
+def write_geometry_file(prefix, bath, pot, geo):
+    """ write the geometry file to its filesystem path
+    """
+    file_path = geometry_file_path(prefix, bath, pot)
+    file_str = autofile.write.geometry(geo)
+    autofile.write_file(file_path, file_str)
+
+
+def read_geometry_file(prefix, bath, pot):
+    """ read the geometry file from its filesystem path
+    """
+    file_path = geometry_file_path(prefix, bath, pot)
+    file_str = autofile.read_file(file_path)
+    geo = autofile.read.geometry(file_str)
+    return geo
+
+
+def write_bath_geometry_file(prefix, bath, pot, geo):
+    """ write the bath geometry file to its filesystem path
+    """
+    file_path = bath_geometry_file_path(prefix, bath, pot)
+    file_str = autofile.write.geometry(geo)
+    autofile.write_file(file_path, file_str)
+
+
+def read_bath_geometry_file(prefix, bath, pot):
+    """ read the bath geometry file from its filesystem path
+    """
+    file_path = bath_geometry_file_path(prefix, bath, pot)
+    file_str = autofile.read_file(file_path)
+    geo = autofile.read.geometry(file_str)
+    return geo
+
+
+def write_epsilon_file(prefix, bath, pot, geo):
+    """ write the lennard-jones epsilon file to its filesystem path
+    """
+    file_path = epsilon_file_path(prefix, bath, pot)
+    file_str = autofile.write.lennard_jones_epsilon(geo)
+    autofile.write_file(file_path, file_str)
+
+
+def read_epsilon_file(prefix, bath, pot):
+    """ read the lennard-jones epsilon file from its filesystem path
+    """
+    file_path = epsilon_file_path(prefix, bath, pot)
+    file_str = autofile.read_file(file_path)
+    geo = autofile.read.lennard_jones_epsilon(file_str)
+    return geo
+
+
+def write_sigma_file(prefix, bath, pot, geo):
+    """ write the lennard-jones sigma file to its filesystem path
+    """
+    file_path = sigma_file_path(prefix, bath, pot)
+    file_str = autofile.write.lennard_jones_sigma(geo)
+    autofile.write_file(file_path, file_str)
+
+
+def read_sigma_file(prefix, bath, pot):
+    """ read the lennard-jones sigma file from its filesystem path
+    """
+    file_path = sigma_file_path(prefix, bath, pot)
+    file_str = autofile.read_file(file_path)
+    geo = autofile.read.lennard_jones_sigma(file_str)
+    return geo
+
+
+def write_information_file(prefix, bath, pot, inf):
+    """ write the information file to its filesystem path
+    """
+    file_path = information_file_path(prefix, bath, pot)
+    file_str = autofile.write.information(inf)
+    autofile.write_file(file_path, file_str)
+
+
+def read_information_file(prefix, bath, pot):
+    """ read the information file from its filesystem path
+    """
+    file_path = information_file_path(prefix, bath, pot)
+    file_str = autofile.read_file(file_path)
+    inf = autofile.read.information(file_str)
+    return inf
+
+
+# path definitions
 BASE_DIR_NAME = 'LJ'
 
 
@@ -16,69 +113,89 @@ class BATHxGAS():
     KR = 'KR'
 
 
-class METHOD():
-    """ lennard-jones method """
+class POTENTIAL():
+    """ lennard-jones pot """
     LJ126 = 'LJ126'
     BUCK = 'BUCK'
     REAL = 'REAL'
 
 
-class INFO():
-    """ parameters for the information dictionary
-    """
-    NSAMP_KEY = 'nsamples'
-
-
 BATH_GASES = (BATHxGAS.N2, BATHxGAS.HE, BATHxGAS.NE, BATHxGAS.KR)
-METHODS = (METHOD.LJ126, METHOD.BUCK, METHOD.REAL)
+POTENTIALS = (POTENTIAL.LJ126, POTENTIAL.BUCK, POTENTIAL.REAL)
 
 
-def schema(bath_gas, method, geo, bath_geo, eps, sig, nsamp):
-    """ lennard-jones directory schema
+def directory_path(prefix, bath, pot):
+    """ filesystem directory path
     """
-    bath_gas = str(bath_gas).upper()
-    method = str(method).upper()
-    assert bath_gas in BATH_GASES
-    assert method in METHODS
-    dir_names = (BASE_DIR_NAME, bath_gas, method)
-    dir_path = os.path.join(*dir_names)
-
-    file_spec_dct = dict([
-        _information_file_spec(dir_path, nsamp),
-        _geometry_file_spec(dir_path, geo, _PREFIX.MAIN),
-        _geometry_file_spec(dir_path, bath_geo, _PREFIX.BATH),
-        _epsilon_file_spec(dir_path, eps),
-        _sigma_file_spec(dir_path, sig),
-    ])
-    return dir_path, file_spec_dct
+    assert os.path.isdir(prefix)
+    bath = str(bath).upper()
+    pot = str(pot).upper()
+    assert bath in BATH_GASES
+    assert pot in POTENTIALS
+    dir_names = (BASE_DIR_NAME, bath, pot)
+    dir_path = os.path.join(prefix, *dir_names)
+    return dir_path
 
 
-def _information_file_spec(dir_path, nsamp):
-    assert isinstance(nsamp, int)
-    inf_dct = {INFO.NSAMP_KEY: nsamp}
-
-    file_str = autofile.write.information(inf_dct)
-    file_name = autofile.name.information(_PREFIX.INFO)
+def geometry_file_path(prefix, bath, pot):
+    """ filesystem geometry file path
+    """
+    dir_path = directory_path(prefix, bath, pot)
+    file_name = autofile.name.geometry(_FILExPREFIX.MAIN)
     file_path = os.path.join(dir_path, file_name)
-    return (file_path, file_str)
+    return file_path
 
 
-def _geometry_file_spec(dir_path, geo, prefix):
-    file_str = autofile.write.geometry(geo)
-    file_name = autofile.name.geometry(prefix)
+def bath_geometry_file_path(prefix, bath, pot):
+    """ filesystem geometry file path
+    """
+    dir_path = directory_path(prefix, bath, pot)
+    file_name = autofile.name.geometry(_FILExPREFIX.BATH)
     file_path = os.path.join(dir_path, file_name)
-    return (file_path, file_str)
+    return file_path
 
 
-def _epsilon_file_spec(dir_path, eps):
-    file_str = autofile.write.lennard_jones_epsilon(eps)
-    file_name = autofile.name.lennard_jones_epsilon(_PREFIX.MAIN)
+def epsilon_file_path(prefix, bath, pot):
+    """ filesystem lennard-jones epsilon file path
+    """
+    dir_path = directory_path(prefix, bath, pot)
+    file_name = autofile.name.lennard_jones_epsilon(_FILExPREFIX.MAIN)
     file_path = os.path.join(dir_path, file_name)
-    return (file_path, file_str)
+    return file_path
 
 
-def _sigma_file_spec(dir_path, sig):
-    file_str = autofile.write.lennard_jones_sigma(sig)
-    file_name = autofile.name.lennard_jones_sigma(_PREFIX.MAIN)
+def sigma_file_path(prefix, bath, pot):
+    """ filesystem lennard-jones sigma file path
+    """
+    dir_path = directory_path(prefix, bath, pot)
+    file_name = autofile.name.lennard_jones_sigma(_FILExPREFIX.MAIN)
     file_path = os.path.join(dir_path, file_name)
-    return (file_path, file_str)
+    return file_path
+
+
+def information_file_path(prefix, bath, pot):
+    """ filesystem information file path
+    """
+    dir_path = directory_path(prefix, bath, pot)
+    file_name = autofile.name.information(_FILExPREFIX.INFO)
+    file_path = os.path.join(dir_path, file_name)
+    return file_path
+
+
+# information files
+class INFO():
+    """ information dictionaries """
+
+    class ONEDMIN():
+        """ 1dmin information """
+        SOURCE_KEY = 'source'
+        NSAMP_KEY = 'nsamples'
+
+        @classmethod
+        def dict(cls, nsamp):
+            """ 1dmin information dictionary
+            """
+            assert isinstance(nsamp, numbers.Integral)
+            inf = {cls.SOURCE_KEY: '1dmin',
+                   cls.NSAMP_KEY: nsamp}
+            return inf

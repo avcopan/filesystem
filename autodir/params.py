@@ -2,7 +2,7 @@
 """
 
 
-class PREFIX():
+class FILExPREFIX():
     """ file prefixes for different types of information
     """
     INFO = 'info'
