@@ -83,7 +83,47 @@ def test__lj():
     assert inf[autodir.lj.INFO.ONEDMIN.NSAMP_KEY] == ref_nsamp
 
 
+def test__conf():
+    """ test autodir.conf
+    """
+    ref_geo = (('C', (0.066541036329, -0.86543409422, -0.56994517889)),
+               ('O', (0.066541036329, -0.86543409422, 2.13152981129)),
+               ('O', (0.066541036329, 1.6165813318, -1.63686376233)),
+               ('H', (-1.52331011945, -1.99731957213, -1.31521725797)),
+               ('H', (1.84099386813, -1.76479255185, -1.16213243427)),
+               ('H', (-1.61114836922, -0.17751142359, 2.6046492029)),
+               ('H', (-1.61092727126, 2.32295906780, -1.19178601663)))
+    ref_ene = -187.38518070487598
+    ref_nsamp = 7
+    ref_base_inf = autodir.conf.INFO.BASE.dict(nsamp=ref_nsamp)
+
+    uid = autodir.unique_identifier()
+    dir_path = autodir.conf.directory_path(TMP_DIR, uid)
+
+    assert not os.path.isdir(dir_path)
+    autodir.conf.create(TMP_DIR, uid)
+    assert os.path.isdir(dir_path)
+
+    # write information to the filesystem
+    autodir.conf.write_geometry_file(TMP_DIR, uid, ref_geo)
+    autodir.conf.write_energy_file(TMP_DIR, uid, ref_ene)
+    autodir.conf.write_base_information_file(TMP_DIR, ref_base_inf)
+
+    # read information from the filesystem
+    geo = autodir.conf.read_geometry_file(TMP_DIR, uid)
+    ene = autodir.conf.read_energy_file(TMP_DIR, uid)
+    base_inf = autodir.conf.read_base_information_file(TMP_DIR)
+
+    assert numpy.isclose(ene, ref_ene)
+    assert automol.geom.almost_equal(geo, ref_geo)
+    assert base_inf == ref_base_inf
+    print(dir_path)
+
+    print(autodir.conf.existing_identifiers(TMP_DIR))
+
+
 if __name__ == '__main__':
     test__lj()
     test__species()
     test__theory()
+    test__conf()
