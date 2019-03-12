@@ -2,12 +2,37 @@
 """
 import os
 import tempfile
+import itertools
 import numpy
 import autodir
 import automol
 
 TMP_DIR = tempfile.mkdtemp()
 print(TMP_DIR)
+
+
+def test__id_():
+    """ test autodir.id_
+    """
+    rid = autodir.id_.identifier()
+    assert autodir.id_.is_identifier(rid)
+    assert not autodir.id_.is_identifier(rid + 'A')
+    assert not autodir.id_.is_identifier(rid + ' ')
+
+    test_path = os.path.join(TMP_DIR, 'id_test')
+    os.mkdir(test_path)
+
+    ref_rids = tuple(autodir.id_.identifier() for _ in range(10))
+    dir_names = tuple(itertools.chain(ref_rids,
+                                      map('A'.__add__, ref_rids),
+                                      map(' '.__add__, ref_rids)))
+
+    for dir_name in dir_names:
+        dir_path = os.path.join(test_path, dir_name)
+        os.mkdir(dir_path)
+
+    rids = autodir.id_.directory_identifiers_at(test_path)
+    assert set(rids) == set(ref_rids)
 
 
 def test__species():
@@ -94,36 +119,37 @@ def test__conf():
                ('H', (-1.61114836922, -0.17751142359, 2.6046492029)),
                ('H', (-1.61092727126, 2.32295906780, -1.19178601663)))
     ref_ene = -187.38518070487598
-    ref_nsamp = 7
-    ref_base_inf = autodir.conf.INFO.BASE.dict(nsamp=ref_nsamp)
+    ref_base_inf = autodir.conf.INFO.BASE.dict(nsamp=7)
 
-    uid = autodir.unique_identifier()
-    dir_path = autodir.conf.directory_path(TMP_DIR, uid)
+    rid = autodir.id_.identifier()
+
+    dir_path = autodir.conf.directory_path(TMP_DIR, rid)
 
     assert not os.path.isdir(dir_path)
-    autodir.conf.create(TMP_DIR, uid)
+    autodir.conf.create(TMP_DIR, rid)
     assert os.path.isdir(dir_path)
 
     # write information to the filesystem
-    autodir.conf.write_geometry_file(TMP_DIR, uid, ref_geo)
-    autodir.conf.write_energy_file(TMP_DIR, uid, ref_ene)
+    autodir.conf.write_geometry_file(TMP_DIR, rid, ref_geo)
+    autodir.conf.write_energy_file(TMP_DIR, rid, ref_ene)
     autodir.conf.write_base_information_file(TMP_DIR, ref_base_inf)
 
     # read information from the filesystem
-    geo = autodir.conf.read_geometry_file(TMP_DIR, uid)
-    ene = autodir.conf.read_energy_file(TMP_DIR, uid)
+    geo = autodir.conf.read_geometry_file(TMP_DIR, rid)
+    ene = autodir.conf.read_energy_file(TMP_DIR, rid)
     base_inf = autodir.conf.read_base_information_file(TMP_DIR)
 
     assert numpy.isclose(ene, ref_ene)
     assert automol.geom.almost_equal(geo, ref_geo)
     assert base_inf == ref_base_inf
-    print(dir_path)
 
-    print(autodir.conf.existing_identifiers(TMP_DIR))
+    print(autodir.conf.identifiers(TMP_DIR))
+    print(base_inf)
 
 
 if __name__ == '__main__':
     test__lj()
     test__species()
     test__theory()
+    test__id_()
     test__conf()

@@ -28,6 +28,29 @@ def test__information():
     assert inf == ref_inf
 
 
+def test__file():
+    """ test the file read/write functions
+    """
+    inp_str = '<input file contents>'
+    out_str = '<output file contents>'
+    scr_str = '<shell script contents>'
+
+    inp_file_name = autofile.name.input_file('test')
+    out_file_name = autofile.name.output_file('test')
+    scr_file_name = autofile.name.run_script('test')
+
+    inp_file_path = os.path.join(TMP_DIR, inp_file_name)
+    out_file_path = os.path.join(TMP_DIR, out_file_name)
+    scr_file_path = os.path.join(TMP_DIR, scr_file_name)
+
+    assert not os.path.isfile(inp_file_path)
+    assert not os.path.isfile(out_file_path)
+    assert not os.path.isfile(scr_file_path)
+    autofile.write_file(inp_file_path, inp_str)
+    autofile.write_file(out_file_path, out_str)
+    autofile.write_file(scr_file_path, scr_str)
+
+
 def test__energy():
     """ test the energy read/write functions
     """
@@ -140,3 +163,4 @@ if __name__ == '__main__':
     test__zmatrix()
     test__lennard_jones_epsilon()
     test__lennard_jones_sigma()
+    test__file()

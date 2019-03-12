@@ -8,3 +8,4 @@ class FILExPREFIX():
     INFO = 'info'
     MAIN = 'main'
     BATH = 'bath'
+    RUN = 'run'
