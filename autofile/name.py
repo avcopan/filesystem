@@ -5,6 +5,9 @@
 class EXTENSION():
     """ file extensions """
     INFORMATION = '.yaml'
+    INPUT_LOG = '.inp'
+    OUTPUT_LOG = '.out'
+    SHELL_SCRIPT = '.sh'
     ENERGY = '.ene'
     GEOMETRY = '.xyz'
     ZMATRIX = '.zmat'
@@ -16,6 +19,24 @@ def information(file_name):
     """ adds information extension, if missing
     """
     return _add_extension(file_name, EXTENSION.INFORMATION)
+
+
+def input_file(file_name):
+    """ adds input file extension, if missing
+    """
+    return _add_extension(file_name, EXTENSION.INPUT_LOG)
+
+
+def output_file(file_name):
+    """ adds output file extension, if missing
+    """
+    return _add_extension(file_name, EXTENSION.OUTPUT_LOG)
+
+
+def run_script(file_name):
+    """ adds run script extension, if missing
+    """
+    return _add_extension(file_name, EXTENSION.SHELL_SCRIPT)
 
 
 def energy(file_name):

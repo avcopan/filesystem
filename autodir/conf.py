@@ -3,18 +3,16 @@
 import os
 import numbers
 import autofile
+from autodir.id_ import is_identifier as _is_identifier
+from autodir.id_ import directory_identifiers_at as _directory_identifiers_at
 from autodir.params import FILExPREFIX as _FILExPREFIX
-from ._id import directory_identifier_names as _directory_identifier_names
 
 
-# queries
-def existing_identifiers(prefix):
-    """ existing identifiers
+def identifiers(prefix):
+    """ list of existing identifiers
     """
     dir_path = base_path(prefix)
-    uids = (_directory_identifier_names(dir_path) if os.path.isdir(dir_path)
-            else ())
-    return uids
+    return _directory_identifiers_at(dir_path)
 
 
 # filesystem create/read/write functions
@@ -26,10 +24,10 @@ def create_base(prefix):
         os.makedirs(dir_path)
 
 
-def create(prefix, uid):
+def create(prefix, rid):
     """ create this filesystem path
     """
-    dir_path = directory_path(prefix, uid)
+    dir_path = directory_path(prefix, rid)
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
@@ -58,35 +56,35 @@ def read_base_information_file(prefix):
     return base_inf
 
 
-def write_geometry_file(prefix, uid, geo):
+def write_geometry_file(prefix, rid, geo):
     """ write the geometry file to its filesystem path
     """
-    file_path = geometry_file_path(prefix, uid)
+    file_path = geometry_file_path(prefix, rid)
     file_str = autofile.write.geometry(geo)
     autofile.write_file(file_path, file_str)
 
 
-def read_geometry_file(prefix, uid):
+def read_geometry_file(prefix, rid):
     """ read the geometry file from its filesystem path
     """
-    file_path = geometry_file_path(prefix, uid)
+    file_path = geometry_file_path(prefix, rid)
     file_str = autofile.read_file(file_path)
     geo = autofile.read.geometry(file_str)
     return geo
 
 
-def write_energy_file(prefix, uid, geo):
+def write_energy_file(prefix, rid, geo):
     """ write the energy file to its filesystem path
     """
-    file_path = energy_file_path(prefix, uid)
+    file_path = energy_file_path(prefix, rid)
     file_str = autofile.write.energy(geo)
     autofile.write_file(file_path, file_str)
 
 
-def read_energy_file(prefix, uid):
+def read_energy_file(prefix, rid):
     """ read the energy file from its filesystem path
     """
-    file_path = energy_file_path(prefix, uid)
+    file_path = energy_file_path(prefix, rid)
     file_str = autofile.read_file(file_path)
     geo = autofile.read.energy(file_str)
     return geo
@@ -114,27 +112,28 @@ def base_information_file_path(prefix):
     return file_path
 
 
-def directory_path(prefix, uid):
+def directory_path(prefix, rid):
     """ conformer directory path
     """
+    assert _is_identifier(rid)
     prefix = base_path(prefix)
-    dir_path = os.path.join(prefix, uid)
+    dir_path = os.path.join(prefix, rid)
     return dir_path
 
 
-def geometry_file_path(prefix, uid):
+def geometry_file_path(prefix, rid):
     """ filesystem geometry file path
     """
-    dir_path = directory_path(prefix, uid)
+    dir_path = directory_path(prefix, rid)
     file_name = autofile.name.geometry(_FILExPREFIX.MAIN)
     file_path = os.path.join(dir_path, file_name)
     return file_path
 
 
-def energy_file_path(prefix, uid):
+def energy_file_path(prefix, rid):
     """ filesystem energy file path
     """
-    dir_path = directory_path(prefix, uid)
+    dir_path = directory_path(prefix, rid)
     file_name = autofile.name.energy(_FILExPREFIX.MAIN)
     file_path = os.path.join(dir_path, file_name)
     return file_path

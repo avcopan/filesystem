@@ -1,17 +1,24 @@
 """ defines standard directory paths for quantum chemistry data
 """
-from autodir import theory
+# filesystem modules
 from autodir import species
+from autodir import theory
+from autodir import run
 from autodir import conf
 from autodir import lj
-# functions
+# helper modules
+from autodir import id_
 from ._id import unique_identifier
 
 
 __all__ = [
+    # modules
     'species',
     'theory',
+    'run',
     'conf',
     'lj',
+    # functions
+    'id_',
     'unique_identifier',
 ]
