@@ -8,7 +8,6 @@ from autodir import conf
 from autodir import lj
 # helper modules
 from autodir import id_
-from ._id import unique_identifier
 
 
 __all__ = [
@@ -20,5 +19,4 @@ __all__ = [
     'lj',
     # functions
     'id_',
-    'unique_identifier',
 ]

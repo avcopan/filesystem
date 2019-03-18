@@ -2,6 +2,7 @@
 """
 import os
 import numbers
+import autoinf
 import autofile
 from autodir.params import FILExPREFIX as _FILExPREFIX
 
@@ -83,11 +84,12 @@ def read_sigma_file(prefix, bath, pot):
     return geo
 
 
-def write_information_file(prefix, bath, pot, inf):
+def write_information_file(prefix, bath, pot, inf_obj):
     """ write the information file to its filesystem path
     """
+    assert autoinf.matches_function_signature(inf_obj, information)
     file_path = information_file_path(prefix, bath, pot)
-    file_str = autofile.write.information(inf)
+    file_str = autofile.write.information(inf_obj)
     autofile.write_file(file_path, file_str)
 
 
@@ -96,8 +98,9 @@ def read_information_file(prefix, bath, pot):
     """
     file_path = information_file_path(prefix, bath, pot)
     file_str = autofile.read_file(file_path)
-    inf = autofile.read.information(file_str)
-    return inf
+    inf_obj = autofile.read.information(file_str)
+    assert autoinf.matches_function_signature(inf_obj, information)
+    return inf_obj
 
 
 # path definitions
@@ -183,19 +186,10 @@ def information_file_path(prefix, bath, pot):
 
 
 # information files
-class INFO():
-    """ information dictionaries """
-
-    class ONEDMIN():
-        """ 1dmin information """
-        SOURCE_KEY = 'source'
-        NSAMP_KEY = 'nsamples'
-
-        @classmethod
-        def dict(cls, nsamp):
-            """ 1dmin information dictionary
-            """
-            assert isinstance(nsamp, numbers.Integral)
-            inf = {cls.SOURCE_KEY: '1dmin',
-                   cls.NSAMP_KEY: nsamp}
-            return inf
+def information(nsamp):
+    """ create an information object for lennard-jones information
+    """
+    assert isinstance(nsamp, numbers.Integral)
+    inf_obj = autoinf.Info(nsamp=nsamp)
+    assert autoinf.matches_function_signature(inf_obj, information)
+    return inf_obj

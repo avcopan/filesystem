@@ -4,6 +4,7 @@ import os
 import tempfile
 import numpy
 import automol
+import autoinf
 import autofile
 
 TMP_DIR = tempfile.mkdtemp()
@@ -13,19 +14,20 @@ print(TMP_DIR)
 def test__information():
     """ test the information read/write functions
     """
-    ref_inf = {'x': {'y': 1, 'z': 2}, 'a': ['b', 'c', 'd', 'e']}
+    ref_inf_obj = autoinf.Info(a=['b', 'c', 'd', 'e'],
+                               x=autoinf.Info(y=1, z=2))
 
     inf_file_name = autofile.name.information('test')
     inf_file_path = os.path.join(TMP_DIR, inf_file_name)
-    inf_str = autofile.write.information(ref_inf)
+    inf_str = autofile.write.information(ref_inf_obj)
 
     assert not os.path.isfile(inf_file_path)
     autofile.write_file(inf_file_path, inf_str)
     assert os.path.isfile(inf_file_path)
 
     inf_str = autofile.read_file(inf_file_path)
-    inf = autofile.read.information(inf_str)
-    assert inf == ref_inf
+    inf_obj = autofile.read.information(inf_str)
+    assert inf_obj == ref_inf_obj
 
 
 def test__file():
@@ -157,10 +159,10 @@ def test__lennard_jones_sigma():
 
 
 if __name__ == '__main__':
-    test__information()
     test__energy()
     test__geometry()
     test__zmatrix()
     test__lennard_jones_epsilon()
     test__lennard_jones_sigma()
     test__file()
+    test__information()

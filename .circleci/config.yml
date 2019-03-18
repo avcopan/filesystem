@@ -17,6 +17,14 @@ jobs:
                     source activate filesystem-env
                     python setup.py install
             - run:
+                name: Test autoinf
+                command: |
+                    source activate filesystem-env
+                    cd autoinf
+                    pytest -v --cov=autoinf --pyargs autoinf
+                    flake8 --exit-zero autommol
+                    pylint --rcfile=../.pylintrc autoinf
+            - run:
                 name: Test autofile
                 command: |
                     source activate filesystem-env

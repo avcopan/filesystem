@@ -1,15 +1,15 @@
 """ string readers
 """
-import yaml
 import automol
 import autoparse.find as apf
+import autoinf
 
 
 def information(inf_str):
     """ read information (any dict/list combination) from a string
     """
-    inf = yaml.load(inf_str)
-    return inf
+    inf_obj = autoinf.from_string(inf_str)
+    return inf_obj
 
 
 def energy(ene_str):

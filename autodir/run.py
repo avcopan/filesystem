@@ -1,6 +1,7 @@
 """ electronic structure run filesystem
 """
 import os
+import autoinf
 import autofile
 from autodir.id_ import is_identifier as _is_identifier
 from autodir.id_ import directory_identifiers_at as _directory_identifiers_at
@@ -38,11 +39,12 @@ def has_base_information_file(prefix):
     return os.path.isfile(file_path)
 
 
-def write_base_information_file(prefix, base_inf):
+def write_base_information_file(prefix, base_inf_obj):
     """ write the base information file to its filesystem path
     """
+    assert autoinf.matches_function_signature(base_inf_obj, base_information)
     file_path = base_information_file_path(prefix)
-    file_str = autofile.write.information(base_inf)
+    file_str = autofile.write.information(base_inf_obj)
     autofile.write_file(file_path, file_str)
 
 
@@ -51,8 +53,9 @@ def read_base_information_file(prefix):
     """
     file_path = base_information_file_path(prefix)
     file_str = autofile.read_file(file_path)
-    base_inf = autofile.read.information(file_str)
-    return base_inf
+    base_inf_obj = autofile.read.information(file_str)
+    assert autoinf.matches_function_signature(base_inf_obj, base_information)
+    return base_inf_obj
 
 
 def write_run_script(prefix, scr_str):
@@ -185,33 +188,14 @@ def geometry_file_path(prefix, rid):
 
 
 # information files
-class INFO():
-    """ information dictionaries """
-
-    class BASE():
-        """ base information """
-        RUN = 'run'
-        RUN_INFO = 'run_info'
-        JOB = 'job'
-        PROG = 'prog'
-        METHOD = 'method'
-        BASIS = 'basis'
-        INCHI = 'inchi'
-        COMPLETE = 'complete'
-
-        @classmethod
-        def dict(cls, run, run_inf, job, prog, method, basis, ich, complete):
-            """ base information dictionary
-            """
-            assert isinstance(run_inf, dict)
-            inf = {
-                cls.RUN: run,
-                cls.RUN_INFO: run_inf,
-                cls.JOB: job,
-                cls.PROG: prog,
-                cls.METHOD: method,
-                cls.BASIS: basis,
-                cls.INCHI: ich,
-                cls.COMPLETE: complete,
-            }
-            return inf
+def base_information(function, function_info, job, prog, method, basis,
+                     inchi, complete):
+    """ base information object
+    """
+    assert isinstance(function_info, autoinf.Info)
+    inf_obj = autoinf.Info(function=function,
+                           function_info=function_info, job=job,
+                           prog=prog, method=method, basis=basis,
+                           inchi=inchi, complete=complete)
+    assert autoinf.matches_function_signature(inf_obj, base_information)
+    return inf_obj
