@@ -3,6 +3,7 @@
 import os
 import numbers
 import autofile
+import autoinf
 from autodir.id_ import is_identifier as _is_identifier
 from autodir.id_ import directory_identifiers_at as _directory_identifiers_at
 from autodir.params import FILExPREFIX as _FILExPREFIX
@@ -39,11 +40,12 @@ def has_base_information_file(prefix):
     return os.path.isfile(file_path)
 
 
-def write_base_information_file(prefix, base_inf):
+def write_base_information_file(prefix, base_inf_obj):
     """ write the base information file to its filesystem path
     """
+    assert autoinf.matches_function_signature(base_inf_obj, base_information)
     file_path = base_information_file_path(prefix)
-    file_str = autofile.write.information(base_inf)
+    file_str = autofile.write.information(base_inf_obj)
     autofile.write_file(file_path, file_str)
 
 
@@ -52,8 +54,9 @@ def read_base_information_file(prefix):
     """
     file_path = base_information_file_path(prefix)
     file_str = autofile.read_file(file_path)
-    base_inf = autofile.read.information(file_str)
-    return base_inf
+    base_inf_obj = autofile.read.information(file_str)
+    assert autoinf.matches_function_signature(base_inf_obj, base_information)
+    return base_inf_obj
 
 
 def write_geometry_file(prefix, rid, geo):
@@ -140,17 +143,10 @@ def energy_file_path(prefix, rid):
 
 
 # information files
-class INFO():
-    """ information dictionaries """
-
-    class BASE():
-        """ base information """
-        NSAMP_KEY = 'nsamples'
-
-        @classmethod
-        def dict(cls, nsamp):
-            """ base information dictionary
-            """
-            assert isinstance(nsamp, numbers.Integral)
-            inf = {cls.NSAMP_KEY: nsamp}
-            return inf
+def base_information(nsamp):
+    """ base information object
+    """
+    assert isinstance(nsamp, numbers.Integral)
+    inf_obj = autoinf.Info(nsamp=nsamp)
+    assert autoinf.matches_function_signature(inf_obj, base_information)
+    return inf_obj

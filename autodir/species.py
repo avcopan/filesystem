@@ -3,6 +3,7 @@
 import os
 import numbers
 import automol
+import autoinf
 import autofile
 from autodir.params import FILExPREFIX as _FILExPREFIX
 
@@ -15,10 +16,14 @@ def create(prefix, ich, mult):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
-    conn_inf = INFO.CONN.dict(ich=ich)
-    inf = INFO.dict(ich=ich)
-    _write_connectivity_information_file(prefix, ich, conn_inf)
-    _write_information_file(prefix, ich, mult, inf)
+    smi = automol.inchi.smiles(ich)
+    conn_ich = automol.inchi.core_parent(ich)
+    conn_smi = automol.inchi.smiles(conn_ich)
+    inf_obj = hash_information(inchi=ich, smiles=smi)
+    conn_inf_obj = connectivity_hash_information(inchi=conn_ich,
+                                                 smiles=conn_smi)
+    _write_connectivity_hash_information_file(prefix, ich, conn_inf_obj)
+    _write_information_file(prefix, ich, mult, inf_obj)
 
 
 def read_information_file(prefix, ich, mult):
@@ -40,12 +45,12 @@ def _write_information_file(prefix, ich, mult, inf):
     autofile.write_file(file_path, file_str)
 
 
-def _write_connectivity_information_file(prefix, ich, inf):
+def _write_connectivity_hash_information_file(prefix, ich, inf):
     """ write the connectivity information file to its filesystem path
 
     (private because the user shouldn't be calling it)
     """
-    file_path = _connectivity_information_file_path(prefix, ich)
+    file_path = _connectivity_hash_information_file_path(prefix, ich)
     file_str = autofile.write.information(inf)
     autofile.write_file(file_path, file_str)
 
@@ -94,7 +99,7 @@ def _connectivity_directory_path(prefix, ich):
     return dir_path
 
 
-def _connectivity_information_file_path(prefix, ich):
+def _connectivity_hash_information_file_path(prefix, ich):
     """ filesystem information file path
     """
     dir_path = _connectivity_directory_path(prefix, ich)
@@ -115,37 +120,22 @@ def _is_valid_stereo_inchi(ich):
 
 
 # information files
-_ICH_KEY = 'inchi'
-_SMI_KEY = 'smiles'
+def hash_information(inchi, smiles):
+    """ stereo information object
+    """
+    assert _is_valid_stereo_inchi(inchi)
+    assert inchi == automol.smiles.inchi(smiles)
+    inf_obj = autoinf.Info(inchi=inchi, smiles=smiles)
+    assert autoinf.matches_function_signature(inf_obj, hash_information)
+    return inf_obj
 
 
-class INFO():
-    """ information dictionaries """
-    ICH_KEY = _ICH_KEY
-    SMI_KEY = _SMI_KEY
-
-    @classmethod
-    def dict(cls, ich):
-        """ inchi hash information dictionary
-        """
-        assert _is_valid_stereo_inchi(ich)
-        smi = automol.inchi.smiles(ich)
-        inf_dct = {cls.ICH_KEY: ich,
-                   cls.SMI_KEY: smi}
-        return inf_dct
-
-    class CONN():
-        """ inchi connectivity hash information """
-        ICH_KEY = _ICH_KEY
-        SMI_KEY = _SMI_KEY
-
-        @classmethod
-        def dict(cls, ich):
-            """ inchi connectivity hash information dictionary
-            """
-            ich = automol.inchi.core_parent(ich)
-            assert _is_valid_connectivity_inchi(ich)
-            smi = automol.inchi.smiles(ich)
-            inf_dct = {cls.ICH_KEY: ich,
-                       cls.SMI_KEY: smi}
-            return inf_dct
+def connectivity_hash_information(inchi, smiles):
+    """ connectivity information object
+    """
+    assert _is_valid_connectivity_inchi(inchi)
+    assert inchi == automol.smiles.inchi(smiles)
+    inf_obj = autoinf.Info(inchi=inchi, smiles=smiles)
+    assert autoinf.matches_function_signature(inf_obj,
+                                              connectivity_hash_information)
+    return inf_obj

@@ -1,14 +1,15 @@
 """ string writers
 """
 from numbers import Real as _Real
-import yaml
 import automol
+import autoinf
 
 
-def information(inf):
+def information(inf_obj):
     """ write information (any dict/list combination) to a string
     """
-    inf_str = yaml.dump(inf, default_flow_style=False)
+    assert isinstance(inf_obj, autoinf.Info)
+    inf_str = autoinf.string(inf_obj)
     return inf_str
 
 
