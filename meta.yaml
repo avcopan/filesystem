@@ -1,0 +1,25 @@
+# cmd: conda build . -c pacchem -c rdkit -c openbabel
+package:
+    name: filesystem
+    version: "0.1.0"
+
+source:
+    path: .
+
+requirements:
+    build:
+        - python
+    test:
+        commands:
+            - pytest -v --pyargs autodir
+            - pytest -v --pyargs autofile
+    run:
+        - python
+        - numpy
+        - pyyaml
+        - pytest
+        - pytest-cov
+        - future
+        - flake8
+        - pylint
+        - pacchem::autochem
