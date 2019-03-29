@@ -25,7 +25,7 @@ def string(inf_obj):
 def from_string(inf_str):
     """ read an information object from a YAML string
     """
-    inf_dct = yaml.load(inf_str)
+    inf_dct = yaml.load(inf_str, Loader=yaml.FullLoader)
     inf_obj = object_(inf_dct)
     return inf_obj
 
