@@ -53,19 +53,6 @@ def test__species():
     assert inf_obj.smiles == r'[CH]=C/C=C\C=O'
 
 
-def test__theory():
-    """ test autodir.theory
-    """
-    method = 'rhf-mp2'
-    basis = 'sto-3g'
-
-    dir_path = autodir.theory.directory_path(TMP_DIR, method, basis)
-
-    assert not os.path.isdir(dir_path)
-    autodir.theory.create(TMP_DIR, method, basis)
-    assert os.path.isdir(dir_path)
-
-
 def test__run():
     """ test autodir.run
     """
@@ -210,10 +197,28 @@ def test__conf():
     print(base_inf_obj)
 
 
+def test__theory():
+    """ test autodir.theory
+    """
+    method = 'b3lyp'
+    basis = 'sto-3g'
+    open_shell = True
+    orb_restricted = False
+
+    dir_path = autodir.theory.directory_path(
+        TMP_DIR, method, basis, open_shell, orb_restricted)
+
+    assert not os.path.isdir(dir_path)
+    autodir.theory.create(
+        TMP_DIR, method, basis, open_shell, orb_restricted)
+    assert os.path.isdir(dir_path)
+
+    autodir.theory.create(
+        TMP_DIR, method, basis, False, True)
+
+    autodir.theory.create(
+        TMP_DIR, method, '6-31g*', False, True)
+
+
 if __name__ == '__main__':
-    # test__theory()
-    # test__id_()
-    test__conf()
-    test__lj()
-    test__species()
-    test__run()
+    test__theory()

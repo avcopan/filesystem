@@ -2,6 +2,7 @@ name: filesystem-env
 
 channels:
     - pacchem
+    - psi4       # for elstruct dependency
     - rdkit      # for autochem dependency
     - openbabel  # for autochem dependency
 
@@ -15,3 +16,4 @@ dependencies:
     - flake8
     - pylint
     - pacchem::autochem
+    - pacchem::elstruct
