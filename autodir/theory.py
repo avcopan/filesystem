@@ -1,64 +1,77 @@
 """ theory filesystem
 """
 import os
+import base64
+import hashlib
+import elstruct
+import autoinf
+import autofile
+from autodir.params import FILExPREFIX as _FILExPREFIX
 
 
 # filesystem create/read/write functions
-def create(prefix, method, basis=None):
+def create(prefix, method, basis, open_shell, orb_restricted):
     """ create this filesystem path
     """
-    dir_path = directory_path(prefix, method, basis)
+    dir_path = directory_path(prefix, method, basis, open_shell,
+                              orb_restricted)
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
+    # write the information file
+    inf_obj = information(method, basis, open_shell, orb_restricted)
+    inf_str = autofile.write.information(inf_obj)
+    file_name = autofile.name.information(_FILExPREFIX.INFO)
+    file_path = os.path.join(dir_path, file_name)
+    autofile.write_file(file_path, inf_str)
 
-# path definitions
-def directory_path(prefix, method, basis=None):
-    """ filesystem directory path
+
+def directory_path(prefix, method, basis, open_shell, orb_restricted):
+    """ theory directory path
     """
-    if basis is None:
-        theory = composite_name(method)
-    else:
-        theory = standard_name(method, basis)
-
-    dir_path = os.path.join(prefix, theory)
+    assert os.path.isdir(prefix)
+    dir_name = directory_name(method, basis, open_shell, orb_restricted)
+    dir_path = os.path.join(prefix, dir_name)
     return dir_path
 
 
-# standard theory naming
-class BASIS():
-    """ electronic structure basis sets """
-    STO3G = 'STO-3G'
-    P321G = '3-21G'
-    P631G = '6-31G'
-    PVDZ = 'PVDZ'
-    PVTZ = 'PVTZ'
-
-
-class METHOD():
-    """ electronic structure method """
-
-    RHF = 'RHF'
-    UHF = 'UHF'
-    RHF_MP2 = 'RHF-MP2'
-    UHF_MP2 = 'UHF-MP2'
-
-
-BASES = (BASIS.STO3G, BASIS.P321G, BASIS.P631G, BASIS.PVDZ, BASIS.PVTZ)
-METHODS = (METHOD.RHF, METHOD.UHF, METHOD.RHF_MP2, METHOD.UHF_MP2)
-
-
-def standard_name(method, basis):
-    """ standard theory name from method and basis
+def directory_name(method, basis, open_shell, orb_restricted):
+    """ determine the name for the directory
     """
-    method = str(method).upper()
-    basis = str(basis).upper()
-    assert basis in BASES
-    assert method in METHODS
-    return '{}_{}'.format(method, basis)
+    method = elstruct.par.Method.standard_case(method)
+    basis = elstruct.par.Method.standard_case(basis)
+    assert isinstance(open_shell, bool)
+    assert isinstance(orb_restricted, bool)
+
+    if not open_shell:
+        assert orb_restricted is True
+    else:
+        if elstruct.par.Method.is_dft(method):
+            assert orb_restricted is False if open_shell else orb_restricted
+
+    basis_hash = _short_hash(basis)
+    method_hash = _short_hash(method)
+    ref_char = 'R' if orb_restricted else 'U'
+    dir_name = ''.join([method_hash, basis_hash, ref_char])
+    return dir_name
 
 
-def composite_name(method):
-    """ theory name for a composite method
+def _short_hash(string):
+    string = string.lower().encode('utf-8')
+    dig = hashlib.md5(string).digest()
+    hsh = base64.urlsafe_b64encode(dig)[:3]
+    return hsh.decode()
+
+
+# information files
+def information(method, basis, open_shell, orb_restricted):
+    """ information object
     """
-    raise NotImplementedError(method)
+    method = elstruct.par.Method.standard_case(method)
+    basis = elstruct.par.Method.standard_case(basis)
+    assert isinstance(open_shell, bool)
+    assert isinstance(orb_restricted, bool)
+    inf_obj = autoinf.Info(method=method, basis=basis, open_shell=open_shell,
+                           orb_restricted=orb_restricted)
+    assert autoinf.matches_function_signature(inf_obj, information)
+    return inf_obj
