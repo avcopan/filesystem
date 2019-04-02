@@ -1,5 +1,7 @@
 """ string readers
 """
+from io import StringIO as _StringIO
+import numpy
 import automol
 import autoparse.find as apf
 import autoinf
@@ -31,6 +33,25 @@ def zmatrix(zma_str):
     """
     zma = automol.zmatrix.from_zmat_string(zma_str)
     return zma
+
+
+def gradient(grad_str):
+    """ read a gradient (hartree bohr^-1) from a string (hartree bohr^-1)
+    """
+    grad_str_io = _StringIO(grad_str)
+    grad = numpy.loadtxt(grad_str_io)
+    assert grad.ndim == 2 and grad.shape[1] == 3
+    return tuple(map(tuple, grad))
+
+
+def hessian(hess_str):
+    """ read a hessian (hartree bohr^-2) from a string (hartree bohr^-2)
+    """
+    hess_str_io = _StringIO(hess_str)
+    hess = numpy.loadtxt(hess_str_io)
+    assert hess.ndim == 2
+    assert hess.shape[0] % 3 == 0 and hess.shape[0] == hess.shape[1]
+    return tuple(map(tuple, hess))
 
 
 def lennard_jones_epsilon(eps_str):

@@ -11,6 +11,8 @@ class EXTENSION():
     ENERGY = '.ene'
     GEOMETRY = '.xyz'
     ZMATRIX = '.zmat'
+    GRADIENT = '.grad'
+    HESSIAN = '.hess'
     LJ_EPSILON = '.eps'
     LJ_SIGMA = '.sig'
 
@@ -55,6 +57,18 @@ def zmatrix(file_name):
     """ adds zmatrix extension, if missing
     """
     return _add_extension(file_name, EXTENSION.ZMATRIX)
+
+
+def gradient(file_name):
+    """ adds gradient extension, if missing
+    """
+    return _add_extension(file_name, EXTENSION.GRADIENT)
+
+
+def hessian(file_name):
+    """ adds hessian extension, if missing
+    """
+    return _add_extension(file_name, EXTENSION.HESSIAN)
 
 
 def lennard_jones_epsilon(file_name):
