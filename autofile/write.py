@@ -1,6 +1,8 @@
 """ string writers
 """
+from io import StringIO as _StringIO
 from numbers import Real as _Real
+import numpy
 import automol
 import autoinf
 
@@ -31,8 +33,36 @@ def geometry(geo):
 def zmatrix(zma):
     """ write a zmatrix (bohr/radian) to a string (angstroms/degree)
     """
+    assert automol.zmatrix.is_valid(zma)
     zma_str = automol.zmatrix.zmat_string(zma)
     return zma_str
+
+
+def gradient(grad):
+    """ write a gradient (hartree bohr^-1) to a string (hartree bohr^-1)
+    """
+    grad = numpy.array(grad)
+    assert grad.ndim == 2 and grad.shape[1] == 3
+
+    grad_str_io = _StringIO()
+    numpy.savetxt(grad_str_io, grad)
+    grad_str = grad_str_io.getvalue()
+    grad_str_io.close()
+    return grad_str
+
+
+def hessian(hess):
+    """ write a hessian (hartree bohr^-2) to a string (hartree bohr^-2)
+    """
+    hess = numpy.array(hess)
+    assert hess.ndim == 2
+    assert hess.shape[0] % 3 == 0 and hess.shape[0] == hess.shape[1]
+
+    hess_str_io = _StringIO()
+    numpy.savetxt(hess_str_io, hess)
+    hess_str = hess_str_io.getvalue()
+    hess_str_io.close()
+    return hess_str
 
 
 def lennard_jones_epsilon(eps):

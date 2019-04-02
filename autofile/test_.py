@@ -122,6 +122,67 @@ def test__zmatrix():
     assert automol.zmatrix.almost_equal(ref_zma, zma)
 
 
+def test__gradient():
+    """ test the gradient read/write functions
+    """
+    ref_grad = (
+        (-6.687065494e-05, -2.087360475e-05, -2.900518464e-05),
+        (2.091815312e-05, -2.162539565e-05, 2.097302071e-05),
+        (-9.17712798e-06, -2.97043797e-05, -1.378883952e-05),
+        (2.244858355e-05, 6.0265176e-06, 1.00733398e-06),
+        (4.676018254e-05, 5.473937899e-05, 1.744549e-05),
+        (-1.407913705e-05, 1.143748381e-05, 3.3681804e-06))
+
+    grad_file_name = autofile.name.gradient('test')
+    grad_file_path = os.path.join(TMP_DIR, grad_file_name)
+    grad_str = autofile.write.gradient(ref_grad)
+
+    assert not os.path.isfile(grad_file_path)
+    autofile.write_file(grad_file_path, grad_str)
+    assert os.path.isfile(grad_file_path)
+
+    grad_str = autofile.read_file(grad_file_path)
+    grad = autofile.read.gradient(grad_str)
+    assert numpy.allclose(ref_grad, grad)
+
+
+def test__hessian():
+    """ test the hessian read/write functions
+    """
+    ref_hess = (
+        (0.70455411073336, -0.08287472697212, 0.0, -0.0798647434566,
+         0.05385932364624, 0.0, -0.62468936727659, 0.02901540332588, 0.0),
+        (-0.08287472697212, 0.73374800936533, 0.0, -0.06694564915575,
+         -0.63928635896955, 0.0, 0.14982037612785, -0.09446165039567, 0.0),
+        (0.0, 0.0, 0.00019470176975, 0.0, 0.0, -9.734161519e-05, 0.0, 0.0,
+         -9.736015438e-05),
+        (-0.0798647434566, -0.06694564915575, 0.0, 0.08499297871932,
+         -0.02022391947876, 0.0, -0.00512823526272, 0.0871695686345, 0.0),
+        (0.05385932364624, -0.63928635896955, 0.0, -0.02022391947876,
+         0.65384367318451, 0.0, -0.03363540416748, -0.01455731421496, 0.0),
+        (0.0, 0.0, -9.734161519e-05, 0.0, 0.0, 4.370597581e-05, 0.0, 0.0,
+         5.363563938e-05),
+        (-0.62468936727659, 0.14982037612785, 0.0, -0.00512823526272,
+         -0.03363540416748, 0.0, 0.6298176025393, -0.11618497196038, 0.0),
+        (0.02901540332588, -0.09446165039567, 0.0, 0.0871695686345,
+         -0.01455731421496, 0.0, -0.11618497196038, 0.10901896461063, 0.0),
+        (0.0, 0.0, -9.736015438e-05, 0.0, 0.0, 5.363563938e-05, 0.0, 0.0,
+         4.3724515e-05)
+    )
+
+    hess_file_name = autofile.name.hessian('test')
+    hess_file_path = os.path.join(TMP_DIR, hess_file_name)
+    hess_str = autofile.write.hessian(ref_hess)
+
+    assert not os.path.isfile(hess_file_path)
+    autofile.write_file(hess_file_path, hess_str)
+    assert os.path.isfile(hess_file_path)
+
+    hess_str = autofile.read_file(hess_file_path)
+    hess = autofile.read.hessian(hess_str)
+    assert numpy.allclose(ref_hess, hess)
+
+
 def test__lennard_jones_epsilon():
     """ test the epsilon read/write functions
     """
@@ -159,10 +220,12 @@ def test__lennard_jones_sigma():
 
 
 if __name__ == '__main__':
-    test__energy()
-    test__geometry()
-    test__zmatrix()
-    test__lennard_jones_epsilon()
-    test__lennard_jones_sigma()
-    test__file()
-    test__information()
+    # test__energy()
+    # test__geometry()
+    # test__zmatrix()
+    # test__lennard_jones_epsilon()
+    # test__lennard_jones_sigma()
+    # test__file()
+    # test__information()
+    # test__gradient()
+    test__hessian()
