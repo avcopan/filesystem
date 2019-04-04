@@ -3,6 +3,7 @@
 import os
 import numbers
 import functools
+import numpy
 import autofile
 import autoinf
 from autodir.id_ import is_identifier as _is_identifier
@@ -22,6 +23,21 @@ def identifiers(prefix):
     """
     dir_path = base_path(prefix)
     return _directory_identifiers_at(dir_path)
+
+
+def update_trajectory_file(prefix):
+    """ update the trajectory file at this prefix
+    """
+    rids = identifiers(prefix)
+    enes = [read_energy_file(prefix, rid) for rid in rids]
+    geos = [read_geometry_file(prefix, rid) for rid in rids]
+
+    # sort them by energy
+    srt_idxs = numpy.argsort(enes)
+    srt_enes = tuple(map(enes.__getitem__, srt_idxs))
+    srt_geos = tuple(map(geos.__getitem__, srt_idxs))
+    comments = ["energy: {}".format(str(ene)) for ene in srt_enes]
+    write_trajectory_file(prefix, srt_geos, comments)
 
 
 # path definitions
@@ -87,7 +103,7 @@ def base_information(nsamp):
 
 
 BASE_INFORMATION_FILE = util.DataFile(
-    file_name=autofile.name.information(par.FilePrefix.INFO),
+    file_name=autofile.name.information(par.FilePrefix.CONF),
     dir_path_=base_path,
     writer_=autofile.write.information,
     reader_=autofile.read.information,
@@ -451,3 +467,42 @@ def read_hessian_file(prefix, rid):
     """ read the hessian file from its filesystem path
     """
     return HESSIAN_FILE.read([prefix, rid])
+
+
+# # trajectory file
+def _raise_not_implemented(*args, **kwargs):
+    """ dummy function to raise NotImplementedError and quit """
+    assert args or not args or kwargs or not kwargs
+    raise NotImplementedError
+
+
+TRAJECTORY_FILE = util.DataFile(
+    file_name=autofile.name.trajectory(par.FilePrefix.CONF),
+    dir_path_=base_path,
+    writer_=(lambda args: autofile.write.trajectory(*args)),
+    reader_=_raise_not_implemented,
+)
+
+
+def trajectory_file_path(prefix):
+    """ base directory information file path
+    """
+    return TRAJECTORY_FILE.path([prefix])
+
+
+def has_trajectory_file(prefix):
+    """ does this filesystem have a base information file?
+    """
+    return TRAJECTORY_FILE.exists([prefix])
+
+
+def write_trajectory_file(prefix, geos, comments):
+    """ write the base information file to its filesystem path
+    """
+    TRAJECTORY_FILE.write([prefix], [geos, comments])
+
+
+def read_trajectory_file(prefix):
+    """ read the base information file from its filesystem path
+    """
+    return TRAJECTORY_FILE.read([prefix])

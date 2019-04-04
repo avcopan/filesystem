@@ -30,6 +30,15 @@ def geometry(geo):
     return xyz_str
 
 
+def trajectory(geo_lst, comments=None):
+    """ write a series of geometries (bohr) to a string (angstrom)
+    """
+    assert all(map(automol.geom.is_valid, geo_lst))
+    xyz_traj_str = automol.geom.xyz_trajectory_string(geo_lst,
+                                                      comments=comments)
+    return xyz_traj_str
+
+
 def zmatrix(zma):
     """ write a zmatrix (bohr/radian) to a string (angstroms/degree)
     """
