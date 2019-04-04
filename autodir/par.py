@@ -10,6 +10,7 @@ class FilePrefix():
     GEOM = 'geom'
     GRAD = 'grad'
     HESS = 'hess'
+    CONF = 'conf'
 
     # these may need to change downt the road
     LJ = 'lj'

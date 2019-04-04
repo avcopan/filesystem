@@ -94,6 +94,37 @@ def test__geometry():
     assert automol.geom.almost_equal(ref_geo, geo)
 
 
+def test__trajectory():
+    """ test the trajectory read/rwrite functions
+    """
+    ref_geo_lst = [
+        (('C', (0.0, 0.0, 0.0)),
+         ('O', (0.0, 0.0, 2.699694868173)),
+         ('O', (0.0, 2.503038629201, -1.011409768236)),
+         ('H', (-1.683942509299, -1.076047850358, -0.583313101501)),
+         ('H', (1.684063451772, -0.943916309940, -0.779079279468)),
+         ('H', (1.56980872050, 0.913848877557, 3.152002706027)),
+         ('H', (-1.57051358834, 3.264399836517, -0.334901043405))),
+        (('C', (0.0, 0.0, 0.0)),
+         ('O', (0.0, 0.0, 2.70915105770)),
+         ('O', (0.0, 2.55808068205, -0.83913477573)),
+         ('H', (-1.660164085463, -1.04177010816, -0.73213470306)),
+         ('H', (1.711679909369, -0.895873802652, -0.779058492481)),
+         ('H', (0.0238181080852, -1.813377410537, 3.16912929390)),
+         ('H', (-1.36240560905, 3.348313125118, 0.1732746576216)))]
+    ref_comments = [
+        'energy: -187.38941054878092',
+        'energy: -187.3850624381528']
+
+    traj_file_name = autofile.name.trajectory('test')
+    traj_file_path = os.path.join(TMP_DIR, traj_file_name)
+    traj_str = autofile.write.trajectory(ref_geo_lst, ref_comments)
+
+    assert not os.path.isfile(traj_file_path)
+    autofile.write_file(traj_file_path, traj_str)
+    assert os.path.isfile(traj_file_path)
+
+
 def test__zmatrix():
     """ test the zmatrix read/write functions
     """
@@ -228,4 +259,5 @@ if __name__ == '__main__':
     # test__file()
     # test__information()
     # test__gradient()
-    test__hessian()
+    # test__hessian()
+    test__trajectory()

@@ -2,7 +2,7 @@
 """
 
 
-class EXTENSION():
+class Extension():
     """ file extensions """
     INFORMATION = '.yaml'
     INPUT_LOG = '.inp'
@@ -10,6 +10,7 @@ class EXTENSION():
     SHELL_SCRIPT = '.sh'
     ENERGY = '.ene'
     GEOMETRY = '.xyz'
+    TRAJECTORY = '.t.xyz'
     ZMATRIX = '.zmat'
     GRADIENT = '.grad'
     HESSIAN = '.hess'
@@ -20,67 +21,73 @@ class EXTENSION():
 def information(file_name):
     """ adds information extension, if missing
     """
-    return _add_extension(file_name, EXTENSION.INFORMATION)
+    return _add_extension(file_name, Extension.INFORMATION)
 
 
 def input_file(file_name):
     """ adds input file extension, if missing
     """
-    return _add_extension(file_name, EXTENSION.INPUT_LOG)
+    return _add_extension(file_name, Extension.INPUT_LOG)
 
 
 def output_file(file_name):
     """ adds output file extension, if missing
     """
-    return _add_extension(file_name, EXTENSION.OUTPUT_LOG)
+    return _add_extension(file_name, Extension.OUTPUT_LOG)
 
 
 def run_script(file_name):
     """ adds run script extension, if missing
     """
-    return _add_extension(file_name, EXTENSION.SHELL_SCRIPT)
+    return _add_extension(file_name, Extension.SHELL_SCRIPT)
 
 
 def energy(file_name):
     """ adds energy extension, if missing
     """
-    return _add_extension(file_name, EXTENSION.ENERGY)
+    return _add_extension(file_name, Extension.ENERGY)
 
 
 def geometry(file_name):
     """ adds geometry extension, if missing
     """
-    return _add_extension(file_name, EXTENSION.GEOMETRY)
+    return _add_extension(file_name, Extension.GEOMETRY)
+
+
+def trajectory(file_name):
+    """ adds trajectory extension, if missing
+    """
+    return _add_extension(file_name, Extension.TRAJECTORY)
 
 
 def zmatrix(file_name):
     """ adds zmatrix extension, if missing
     """
-    return _add_extension(file_name, EXTENSION.ZMATRIX)
+    return _add_extension(file_name, Extension.ZMATRIX)
 
 
 def gradient(file_name):
     """ adds gradient extension, if missing
     """
-    return _add_extension(file_name, EXTENSION.GRADIENT)
+    return _add_extension(file_name, Extension.GRADIENT)
 
 
 def hessian(file_name):
     """ adds hessian extension, if missing
     """
-    return _add_extension(file_name, EXTENSION.HESSIAN)
+    return _add_extension(file_name, Extension.HESSIAN)
 
 
 def lennard_jones_epsilon(file_name):
     """ adds lennard-jones epsilon extension, if missing
     """
-    return _add_extension(file_name, EXTENSION.LJ_EPSILON)
+    return _add_extension(file_name, Extension.LJ_EPSILON)
 
 
 def lennard_jones_sigma(file_name):
     """ adds lennard-jones sigma extension, if missing
     """
-    return _add_extension(file_name, EXTENSION.LJ_SIGMA)
+    return _add_extension(file_name, Extension.LJ_SIGMA)
 
 
 def _add_extension(file_name, ext):

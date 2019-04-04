@@ -248,13 +248,46 @@ def test__conf():
     assert grad_inp_str == ref_grad_inp_str
     assert numpy.allclose(grad, ref_grad)
 
-    print(autodir.conf.identifiers(TMP_DIR))
     base_inf_obj.nsamp = 10
     print(base_inf_obj)
 
 
+def test__conf_trajectory():
+    """ test the conformer trajectory update
+    """
+    rids = [autodir.id_.identifier() for _ in range(2)]
+    geos = [
+        (('C', (0.0, 0.0, 0.0)),
+         ('O', (0.0, 0.0, 2.699694868173)),
+         ('O', (0.0, 2.503038629201, -1.011409768236)),
+         ('H', (-1.683942509299, -1.076047850358, -0.583313101501)),
+         ('H', (1.684063451772, -0.943916309940, -0.779079279468)),
+         ('H', (1.56980872050, 0.913848877557, 3.152002706027)),
+         ('H', (-1.57051358834, 3.264399836517, -0.334901043405))),
+        (('C', (0.0, 0.0, 0.0)),
+         ('O', (0.0, 0.0, 2.70915105770)),
+         ('O', (0.0, 2.55808068205, -0.83913477573)),
+         ('H', (-1.660164085463, -1.04177010816, -0.73213470306)),
+         ('H', (1.711679909369, -0.895873802652, -0.779058492481)),
+         ('H', (0.0238181080852, -1.813377410537, 3.16912929390)),
+         ('H', (-1.36240560905, 3.348313125118, 0.1732746576216))),
+    ]
+    enes = [
+        -187.38941054878092,
+        -187.3850624381528,
+    ]
+
+    for rid, geo, ene in zip(rids, geos, enes):
+        autodir.conf.create(TMP_DIR, rid)
+        autodir.conf.write_geometry_file(TMP_DIR, rid, geo)
+        autodir.conf.write_energy_file(TMP_DIR, rid, ene)
+
+    autodir.conf.update_trajectory_file(TMP_DIR)
+
+
 if __name__ == '__main__':
-    # test__conf()
     # test__species()
     # test__theory()
-    test__run()
+    # test__run()
+    # test__conf()
+    test__conf_trajectory()
