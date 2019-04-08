@@ -34,9 +34,11 @@ def update_trajectory_file(prefix):
 
     # sort them by energy
     srt_idxs = numpy.argsort(enes)
+    srt_rids = tuple(map(rids.__getitem__, srt_idxs))
     srt_enes = tuple(map(enes.__getitem__, srt_idxs))
     srt_geos = tuple(map(geos.__getitem__, srt_idxs))
-    comments = ["energy: {}".format(str(ene)) for ene in srt_enes]
+    comments = ["rid: {}, energy: {}".format(rid, str(ene))
+                for rid, ene in zip(srt_rids, srt_enes)]
     write_trajectory_file(prefix, srt_geos, comments)
 
 
