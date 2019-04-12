@@ -6,6 +6,7 @@ from autodir import theory
 from autodir import spth
 from autodir import run
 from autodir import conf
+from autodir import scan
 from autodir import lj
 # helper modules
 from autodir import id_

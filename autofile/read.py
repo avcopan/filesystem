@@ -31,8 +31,15 @@ def geometry(xyz_str):
 def zmatrix(zma_str):
     """ read a zmatrix (bohr/radian) from a string (angstrom/degree)
     """
-    zma = automol.zmatrix.from_zmat_string(zma_str)
+    zma = automol.zmatrix.from_string(zma_str)
     return zma
+
+
+def vmatrix(vma_str):
+    """ read a variable zmatrix (bohr/radian) from a string (angstrom/degree)
+    """
+    vma = automol.zmatrix.v.from_string(vma_str)
+    return vma
 
 
 def gradient(grad_str):

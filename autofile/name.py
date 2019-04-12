@@ -12,6 +12,7 @@ class Extension():
     GEOMETRY = '.xyz'
     TRAJECTORY = '.t.xyz'
     ZMATRIX = '.zmat'
+    VMATRIX = '.vmat'
     GRADIENT = '.grad'
     HESSIAN = '.hess'
     LJ_EPSILON = '.eps'
@@ -64,6 +65,12 @@ def zmatrix(file_name):
     """ adds zmatrix extension, if missing
     """
     return _add_extension(file_name, Extension.ZMATRIX)
+
+
+def vmatrix(file_name):
+    """ adds variable zmatrix extension, if missing
+    """
+    return _add_extension(file_name, Extension.VMATRIX)
 
 
 def gradient(file_name):
