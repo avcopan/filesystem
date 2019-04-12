@@ -130,15 +130,16 @@ def test__zmatrix():
     """
     ref_zma = (
         (('C', (None, None, None), (None, None, None)),
-         ('O', (0, None, None), ('R1', None, None)),
-         ('H', (0, 1, None), ('R2', 'A2', None)),
-         ('H', (0, 1, 2), ('R3', 'A3', 'D3')),
-         ('H', (0, 1, 2), ('R4', 'A4', 'D4')),
-         ('H', (1, 0, 2), ('R5', 'A5', 'D5'))),
-        {'R1': 2.67535, 'R2': 2.06501, 'A2': 1.9116242,
-         'R3': 2.06501, 'A3': 1.9116242, 'D3': 2.108497362,
-         'R4': 2.06458, 'A4': 1.9020947, 'D4': 4.195841334,
-         'R5': 1.83748, 'A5': 1.8690905, 'D5': 5.228936625})
+         ('O', (0, None, None), ('r1', None, None)),
+         ('H', (0, 1, None), ('r2', 'a1', None)),
+         ('H', (0, 1, 2), ('r3', 'a2', 'd1')),
+         ('H', (0, 1, 2), ('r4', 'a3', 'd2')),
+         ('H', (1, 0, 2), ('r5', 'a4', 'd3'))),
+        {'r1': 2.67535,
+         'r2': 2.06501, 'a1': 1.9116242,
+         'r3': 2.06501, 'a2': 1.9116242, 'd1': 2.108497362,
+         'r4': 2.06458, 'a3': 1.9020947, 'd2': 4.195841334,
+         'r5': 1.83748, 'a4': 1.8690905, 'd3': 5.228936625})
 
     zma_file_name = autofile.name.zmatrix('test')
     zma_file_path = os.path.join(TMP_DIR, zma_file_name)
@@ -151,6 +152,29 @@ def test__zmatrix():
     zma_str = autofile.read_file(zma_file_path)
     zma = autofile.read.zmatrix(zma_str)
     assert automol.zmatrix.almost_equal(ref_zma, zma)
+
+
+def test__vmatrix():
+    """ test the vmatrix read/write functions
+    """
+    ref_vma = (('C', (None, None, None), (None, None, None)),
+               ('O', (0, None, None), ('r1', None, None)),
+               ('H', (0, 1, None), ('r2', 'a1', None)),
+               ('H', (0, 1, 2), ('r3', 'a2', 'd1')),
+               ('H', (0, 1, 2), ('r4', 'a3', 'd2')),
+               ('H', (1, 0, 2), ('r5', 'a4', 'd3')))
+
+    vma_file_name = autofile.name.vmatrix('test')
+    vma_file_path = os.path.join(TMP_DIR, vma_file_name)
+    vma_str = autofile.write.vmatrix(ref_vma)
+
+    assert not os.path.isfile(vma_file_path)
+    autofile.write_file(vma_file_path, vma_str)
+    assert os.path.isfile(vma_file_path)
+
+    vma_str = autofile.read_file(vma_file_path)
+    vma = autofile.read.vmatrix(vma_str)
+    assert vma == ref_vma
 
 
 def test__gradient():
@@ -261,3 +285,4 @@ if __name__ == '__main__':
     # test__gradient()
     # test__hessian()
     test__trajectory()
+    test__vmatrix()

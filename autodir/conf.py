@@ -95,11 +95,12 @@ def create_run_directory(prefix, rid):
 
 
 # base
-def base_information(nsamp):
+def base_information(nsamp, tors_info):
     """ base information object
     """
+    tors_info = autoinf.Info(**dict(tors_info))
     assert isinstance(nsamp, numbers.Integral)
-    inf_obj = autoinf.Info(nsamp=nsamp)
+    inf_obj = autoinf.Info(nsamp=nsamp, tors_info=tors_info)
     assert autoinf.matches_function_signature(inf_obj, base_information)
     return inf_obj
 
@@ -136,6 +137,39 @@ def read_base_information_file(prefix):
     """ read the base information file from its filesystem path
     """
     return BASE_INFORMATION_FILE.read([prefix])
+
+
+# base variable zmatrix
+BASE_VMATRIX_FILE = util.DataFile(
+    file_name=autofile.name.vmatrix(par.FilePrefix.CONF),
+    dir_path_=base_path,
+    writer_=autofile.write.vmatrix,
+    reader_=autofile.read.vmatrix,
+)
+
+
+def base_vmatrix_file_path(prefix):
+    """ base variable information file path
+    """
+    return BASE_VMATRIX_FILE.path([prefix])
+
+
+def has_base_vmatrix_file(prefix):
+    """ does this filesystem have a base variable information file?
+    """
+    return BASE_VMATRIX_FILE.exists([prefix])
+
+
+def write_base_vmatrix_file(prefix, base_inf_obj):
+    """ write the base variable information file to its filesystem path
+    """
+    BASE_VMATRIX_FILE.write([prefix], base_inf_obj)
+
+
+def read_base_vmatrix_file(prefix):
+    """ read the base variable information file from its filesystem path
+    """
+    return BASE_VMATRIX_FILE.read([prefix])
 
 
 # geometry files

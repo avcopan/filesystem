@@ -1,6 +1,10 @@
 """ implements an class for YAML-style information
 """
 from types import SimpleNamespace
+try:
+    from collections.abc import Sequence as _Sequence
+except ImportError:
+    from collections import Sequence as _Sequence
 import yaml
 from autoinf._inspect import function_keys as _function_keys
 
@@ -8,7 +12,8 @@ from autoinf._inspect import function_keys as _function_keys
 def object_(inf_dct):
     """ create an information object from a dictionary
     """
-    inf_dct = {key: (object_(val) if isinstance(val, dict) else val)
+    inf_dct = {key: (object_(val) if isinstance(val, dict) else
+                     (list(val) if _is_nonstring_sequence(val) else val))
                for key, val in inf_dct.items()}
     inf_obj = Info(**inf_dct)
     return inf_obj
@@ -48,6 +53,8 @@ class Info(SimpleNamespace):
         self._frozen = True
 
     def __init__(self, **kwargs):
+        kwargs = {key: list(val) if _is_nonstring_sequence(val) else val
+                  for key, val in kwargs.items()}
         super(Info, self).__init__(**kwargs)
         self._freeze()
 
@@ -81,3 +88,8 @@ class Info(SimpleNamespace):
             raise TypeError("'{}' object does not support item assignment"
                             .format(self.__class__.__name__))
         object.__setattr__(self, key, value)
+
+
+def _is_nonstring_sequence(obj):
+    return (isinstance(obj, _Sequence)
+            and not isinstance(obj, (str, bytes, bytearray)))

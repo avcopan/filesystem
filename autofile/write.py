@@ -43,8 +43,16 @@ def zmatrix(zma):
     """ write a zmatrix (bohr/radian) to a string (angstroms/degree)
     """
     assert automol.zmatrix.is_valid(zma)
-    zma_str = automol.zmatrix.zmat_string(zma)
+    zma_str = automol.zmatrix.string(zma)
     return zma_str
+
+
+def vmatrix(vma):
+    """ write a variable zmatrix (bohr/radian) to a string (angstroms/degree)
+    """
+    assert automol.zmatrix.v.is_valid(vma)
+    vma_str = automol.zmatrix.v.string(vma)
+    return vma_str
 
 
 def gradient(grad):

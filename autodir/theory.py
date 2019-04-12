@@ -23,8 +23,8 @@ def short_hash(string):
 def directory_name(method, basis, open_shell, orb_restricted):
     """ determine the name for the directory
     """
-    method = elstruct.par.Method.standard_case(method)
-    basis = elstruct.par.Method.standard_case(basis)
+    method = elstruct.par.standard_case(method)
+    basis = elstruct.par.standard_case(basis)
     assert isinstance(open_shell, bool)
     assert isinstance(orb_restricted, bool)
 
@@ -69,8 +69,8 @@ def create(prefix, method, basis, open_shell, orb_restricted):
 def information(method, basis, open_shell, orb_restricted):
     """ information object
     """
-    method = elstruct.par.Method.standard_case(method)
-    basis = elstruct.par.Method.standard_case(basis)
+    method = elstruct.par.standard_case(method)
+    basis = elstruct.par.standard_case(basis)
     assert isinstance(open_shell, bool)
     assert isinstance(orb_restricted, bool)
     inf_obj = autoinf.Info(method=method, basis=basis, open_shell=open_shell,

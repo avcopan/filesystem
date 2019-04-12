@@ -168,7 +168,17 @@ def test__conf():
     """
     # # base
     ref_nsamp = 7
-    ref_base_inf_obj = autodir.conf.base_information(nsamp=ref_nsamp)
+    tors_info = {'d3': (0, 6.283185307179586),
+                 'd4': (0, 6.283185307179586)}
+    ref_base_inf_obj = autodir.conf.base_information(
+        nsamp=ref_nsamp, tors_info=tors_info)
+    ref_base_vma = (('C', (None, None, None), (None, None, None)),
+                    ('O', (0, None, None), ('r1', None, None)),
+                    ('O', (0, 1, None), ('r2', 'a1', None)),
+                    ('H', (0, 1, 2), ('r3', 'a2', 'd1')),
+                    ('H', (0, 1, 2), ('r4', 'a3', 'd2')),
+                    ('H', (1, 0, 2), ('r5', 'a4', 'd3')),
+                    ('H', (2, 0, 1), ('r6', 'a5', 'd4')))
 
     # # geometry
     ref_inf_obj = autodir.run.information(
@@ -211,6 +221,7 @@ def test__conf():
     # write information to the filesystem
     # # base
     autodir.conf.write_base_information_file(TMP_DIR, ref_base_inf_obj)
+    autodir.conf.write_base_vmatrix_file(TMP_DIR, ref_base_vma)
 
     # # geometry
     autodir.conf.write_information_file(TMP_DIR, rid, ref_inf_obj)
@@ -227,8 +238,10 @@ def test__conf():
     # read information from the filesystem
     # # base
     base_inf_obj = autodir.conf.read_base_information_file(TMP_DIR)
+    base_vma = autodir.conf.read_base_vmatrix_file(TMP_DIR)
     assert base_inf_obj == ref_base_inf_obj
     assert base_inf_obj.nsamp == ref_nsamp
+    assert base_vma == ref_base_vma
 
     # # geometry
     inf_obj = autodir.conf.read_information_file(TMP_DIR, rid)
@@ -249,7 +262,6 @@ def test__conf():
     assert numpy.allclose(grad, ref_grad)
 
     base_inf_obj.nsamp = 10
-    print(base_inf_obj)
 
 
 def test__conf_trajectory():
@@ -285,9 +297,67 @@ def test__conf_trajectory():
     autodir.conf.update_trajectory_file(TMP_DIR)
 
 
+def test__scan():
+    """ test autodir.scan
+    """
+    ref_base_vma = (('C', (None, None, None), (None, None, None)),
+                    ('O', (0, None, None), ('r1', None, None)),
+                    ('O', (0, 1, None), ('r2', 'a1', None)),
+                    ('H', (0, 1, 2), ('r3', 'a2', 'd1')),
+                    ('H', (0, 1, 2), ('r4', 'a3', 'd2')),
+                    ('H', (1, 0, 2), ('r5', 'a4', 'd3')),
+                    ('H', (2, 0, 1), ('r6', 'a5', 'd4')))
+    # tors_info = {'d3': (0, 6.283185307179586),
+    #              'd4': (0, 6.283185307179586)}
+    tors_dct = {'d3': 3, 'd4': 5}
+    idxs_lst = list(itertools.product(range(3), range(5)))
+
+    # # geometry
+    ref_inf_obj = autodir.run.information(
+        job='optimization', prog='psi4', method='mp2', basis='sto-3g')
+    ref_inp_str = '<geometry input file>'
+    ref_geo = (('C', (0.066541036329, -0.86543409422, -0.56994517889)),
+               ('O', (0.066541036329, -0.86543409422, 2.13152981129)),
+               ('O', (0.066541036329, 1.6165813318, -1.63686376233)),
+               ('H', (-1.52331011945, -1.99731957213, -1.31521725797)),
+               ('H', (1.84099386813, -1.76479255185, -1.16213243427)),
+               ('H', (-1.61114836922, -0.17751142359, 2.6046492029)),
+               ('H', (-1.61092727126, 2.32295906780, -1.19178601663)))
+    ref_ene = -187.38518070487598
+
+    # write information to the filesystem
+    # # base
+    autodir.scan.create_base(TMP_DIR)
+    autodir.scan.write_base_vmatrix_file(TMP_DIR, ref_base_vma)
+
+    # # geometry
+    for idxs in idxs_lst:
+        dir_path = autodir.scan.directory_path(TMP_DIR, tors_dct, idxs)
+        assert not os.path.isdir(dir_path)
+        autodir.scan.create(TMP_DIR, tors_dct, idxs)
+        assert os.path.isdir(dir_path)
+
+        autodir.scan.write_information_file(
+            TMP_DIR, tors_dct, idxs, ref_inf_obj)
+        autodir.scan.write_input_file(TMP_DIR, tors_dct, idxs, ref_inp_str)
+        autodir.scan.write_geometry_file(TMP_DIR, tors_dct, idxs, ref_geo)
+        autodir.scan.write_energy_file(TMP_DIR, tors_dct, idxs, ref_ene)
+
+        # # geometry
+        inf_obj = autodir.scan.read_information_file(TMP_DIR, tors_dct, idxs)
+        inp_str = autodir.scan.read_input_file(TMP_DIR, tors_dct, idxs)
+        geo = autodir.scan.read_geometry_file(TMP_DIR, tors_dct, idxs)
+        ene = autodir.scan.read_energy_file(TMP_DIR, tors_dct, idxs)
+        assert inf_obj == ref_inf_obj
+        assert inp_str == ref_inp_str
+        assert numpy.isclose(ene, ref_ene)
+        assert automol.geom.almost_equal(geo, ref_geo)
+
+
 if __name__ == '__main__':
     # test__species()
     # test__theory()
     # test__run()
+    # test__conf_trajectory()
     # test__conf()
-    test__conf_trajectory()
+    test__scan()
