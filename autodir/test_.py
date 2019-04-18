@@ -11,13 +11,13 @@ print(TMP_DIR)
 def test__factory():
     """ test autodir.factory
     """
-    def _name(args):
+    def name_(args):
         num, = args
         assert isinstance(num, int)
         pth = str(num)
         return pth
 
-    def _path_inv(prefix, pth):
+    def path_inv_(prefix, pth):
         assert prefix
         args = (int(pth),)
         return args
@@ -27,11 +27,14 @@ def test__factory():
     prefix = os.path.join(TMP_DIR, 'factory')
     os.mkdir(prefix)
 
+    ddir = autodir.factory.DataDir(name_=name_, nargs=1,
+                                   path_inv_=path_inv_)
+
     fsys = autodir.factory.DataLayer(
-        ddir=autodir.factory.DataDir(_name, _path_inv),
+        ddir=ddir,
         dfile_dct={
             'energy': autodir.lib.dfile.energy(
-                dir_name_=_name, file_prefix='file_prefix')})
+                ddir=ddir, file_prefix='file_prefix')})
 
     for args, val in zip(ref_args_lst, ref_vals):
         assert not fsys.dir.exists(prefix, args)
@@ -39,7 +42,7 @@ def test__factory():
         assert fsys.dir.exists(prefix, args)
 
         assert not fsys.file.energy.exists(prefix, args)
-        fsys.file.energy.write(prefix, args, val)
+        fsys.file.energy.write(val, prefix, args)
         assert fsys.file.energy.exists(prefix, args)
 
     args_lst = fsys.dir.created(prefix)

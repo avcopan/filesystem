@@ -30,9 +30,14 @@ def geometry(geo):
     return xyz_str
 
 
-def trajectory(geo_lst, comments=None):
+def trajectory(traj):
     """ write a series of geometries (bohr) to a string (angstrom)
+
+    (trajectory is given by a sequence of comment-line, geometry pairs)
     """
+    comments, geo_lst = zip(*traj)
+    assert all(isinstance(comment, str) and len(comment.splitlines()) == 1
+               for comment in comments)
     assert all(map(automol.geom.is_valid, geo_lst))
     xyz_traj_str = automol.geom.xyz_trajectory_string(geo_lst,
                                                       comments=comments)
