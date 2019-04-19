@@ -1,13 +1,16 @@
 """ directory naming functions
 """
 import os
-import numbers
-import base64
-import hashlib
-import automol
 import elstruct
-import autoparse.pattern as app
-import autoparse.find as apf
+import automol
+from autodir.lib._util import is_valid_stereo_inchi as _is_valid_stereo_inchi
+from autodir.lib._util import (is_valid_inchi_multiplicity as
+                               _is_valid_inchi_multiplicity)
+from autodir.lib._util import short_hash as _short_hash
+from autodir.lib._util import (random_string_identifier as
+                               _random_string_identifier)
+from autodir.lib._util import (is_random_string_identifier as
+                               _is_random_string_identifier)
 
 
 # species
@@ -20,9 +23,8 @@ def species_trunk():
 def species_leaf(ich, mult):
     """ species leaf directory name
     """
-    assert isinstance(mult, numbers.Integral)
-    assert mult in automol.graph.possible_spin_multiplicities(
-        automol.inchi.connectivity_graph(ich))
+    assert _is_valid_stereo_inchi(ich)
+    assert _is_valid_inchi_multiplicity(ich, mult)
     ich_key = automol.inchi.inchi_key(ich)
     assert automol.inchi.key.is_standard_neutral(ich_key)
 
@@ -32,11 +34,6 @@ def species_leaf(ich, mult):
                  mult_str,
                  automol.inchi.key.second_hash(ich_key),)
     return os.path.join(*dir_names)
-
-
-def _is_valid_stereo_inchi(ich):
-    return (automol.inchi.is_closed(ich) and
-            automol.inchi.has_unknown_stereo_elements(ich) is False)
 
 
 # theory
@@ -57,15 +54,6 @@ def theory_leaf(method, basis, orb_restricted):
     return dir_name
 
 
-def _short_hash(string):
-    """ determine a short (3-character) hash from a string
-    """
-    string = string.lower().encode('utf-8')
-    dig = hashlib.md5(string).digest()
-    hsh = base64.urlsafe_b64encode(dig)[:3]
-    return hsh.decode()
-
-
 # conformer
 def conformer_trunk():
     """ conformer trunk directory name
@@ -76,19 +64,11 @@ def conformer_trunk():
 def conformer_leaf(cid):
     """ conformer leaf directory name
     """
-    assert _is_conformer_id(cid)
+    assert _is_random_string_identifier(cid)
     return cid
 
 
 def new_conformer_id():
-    """ generate a "unique" (=long-ish, random) identifier
+    """ generate a new conformer identifier
     """
-    cid = base64.urlsafe_b64encode(os.urandom(9)).decode("utf-8")
-    return cid
-
-
-def _is_conformer_id(sid):
-    """ is this a valid identifier?
-    """
-    sid_pattern = app.URLSAFE_CHAR * 12
-    return apf.full_match(sid_pattern, sid)
+    return _random_string_identifier()

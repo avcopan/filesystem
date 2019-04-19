@@ -13,15 +13,15 @@ def species_trunk():
     """
     name_ = _pack_arguments(dname.species_trunk)
     nargs = _count_arguments(dname.species_trunk)
-    return factory.DataDir(name_=name_, nargs=nargs)
+    return factory.DataDir(name_=name_, nargs=nargs, depth=1)
 
 
 def species_leaf():
-    """ species trunk DataDir
+    """ species leaf DataDir
     """
     name_ = _pack_arguments(dname.species_leaf)
     nargs = _count_arguments(dname.species_leaf)
-    return factory.DataDir(name_=name_, nargs=nargs)
+    return factory.DataDir(name_=name_, nargs=nargs, depth=4)
 
 
 def theory_leaf():
@@ -29,7 +29,7 @@ def theory_leaf():
     """
     name_ = _pack_arguments(dname.theory_leaf)
     nargs = _count_arguments(dname.theory_leaf)
-    return factory.DataDir(name_=name_, nargs=nargs)
+    return factory.DataDir(name_=name_, nargs=nargs, depth=1)
 
 
 def conformer_trunk():
@@ -37,15 +37,15 @@ def conformer_trunk():
     """
     name_ = _pack_arguments(dname.conformer_trunk)
     nargs = _count_arguments(dname.conformer_trunk)
-    return factory.DataDir(name_=name_, nargs=nargs)
+    return factory.DataDir(name_=name_, nargs=nargs, depth=1)
 
 
 def conformer_leaf():
-    """ conformer trunk DataDir
+    """ conformer leaf DataDir
     """
     name_ = _pack_arguments(dname.conformer_leaf)
     nargs = _count_arguments(dname.conformer_leaf)
-    return factory.DataDir(name_=name_, nargs=nargs)
+    return factory.DataDir(name_=name_, nargs=nargs, depth=1)
 
 
 # helpers

@@ -58,7 +58,6 @@ def test__conformer_leaf():
     """
     cid = dname.new_conformer_id()
     args = [cid]
-    print(cid)
 
     spc_leaf_ddir = ddir.conformer_leaf()
     assert not spc_leaf_ddir.exists(PREFIX, args)
@@ -67,8 +66,9 @@ def test__conformer_leaf():
 
 
 if __name__ == '__main__':
-    test__species_trunk()
+    # test__species_trunk()
+    # test__species_leaf()
+    # test__theory_leaf()
+    # test__conformer_trunk()
+    # test__conformer_leaf()
     test__species_leaf()
-    test__theory_leaf()
-    test__conformer_trunk()
-    test__conformer_leaf()
