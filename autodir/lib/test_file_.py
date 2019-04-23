@@ -6,7 +6,7 @@ import numpy
 import automol
 import autoinf
 import autodir
-from autodir.lib import dfile
+from autodir.lib import file_
 
 PREFIX = tempfile.mkdtemp()
 print(PREFIX)
@@ -16,11 +16,11 @@ DDIR = autodir.factory.DataDir(name_=(lambda _: '.'))
 
 
 def test__input_file():
-    """ test dfile.input_file
+    """ test file_.input_file
     """
     ref_inp_str = '<input file contents>'
 
-    inp_dfile = dfile.input_file(DDIR, 'test')
+    inp_dfile = file_.input_file(DDIR, 'test')
 
     assert not inp_dfile.exists(PREFIX)
     inp_dfile.write(ref_inp_str, PREFIX)
@@ -32,11 +32,11 @@ def test__input_file():
 
 
 def test__output_file():
-    """ test dfile.output_file
+    """ test file_.output_file
     """
     ref_out_str = '<output file contents>'
 
-    out_dfile = dfile.output_file(DDIR, 'test')
+    out_dfile = file_.output_file(DDIR, 'test')
 
     assert not out_dfile.exists(PREFIX)
     out_dfile.write(ref_out_str, PREFIX)
@@ -48,7 +48,7 @@ def test__output_file():
 
 
 def test__information():
-    """ test dfile.information
+    """ test file_.information
     """
     def information(nsamp, tors_info):
         """ base information object
@@ -62,7 +62,7 @@ def test__information():
     ref_inf_obj = information(
         nsamp=4, tors_info={'d1': (0., 1.), 'd2': (0., 3.)})
 
-    inf_dfile = dfile.information(DDIR, 'test', function=information)
+    inf_dfile = file_.information(DDIR, 'test', function=information)
 
     assert not inf_dfile.exists(PREFIX)
     inf_dfile.write(ref_inf_obj, PREFIX)
@@ -74,11 +74,11 @@ def test__information():
 
 
 def test__energy():
-    """ test dfile.energy
+    """ test file_.energy
     """
     ref_ene = -187.38518070487598
 
-    ene_dfile = dfile.energy(DDIR, 'test')
+    ene_dfile = file_.energy(DDIR, 'test')
 
     assert not ene_dfile.exists(PREFIX)
     ene_dfile.write(ref_ene, PREFIX)
@@ -90,7 +90,7 @@ def test__energy():
 
 
 def test__geometry():
-    """ test dfile.geometry
+    """ test file_.geometry
     """
     ref_geo = (('C', (0.066541036329, -0.86543409422, -0.56994517889)),
                ('O', (0.066541036329, -0.86543409422, 2.13152981129)),
@@ -100,7 +100,7 @@ def test__geometry():
                ('H', (-1.61114836922, -0.17751142359, 2.6046492029)),
                ('H', (-1.61092727126, 2.32295906780, -1.19178601663)))
 
-    geo_dfile = dfile.geometry(DDIR, 'test')
+    geo_dfile = file_.geometry(DDIR, 'test')
 
     assert not geo_dfile.exists(PREFIX)
     geo_dfile.write(ref_geo, PREFIX)
@@ -112,7 +112,7 @@ def test__geometry():
 
 
 def test__gradient():
-    """ test dfile.gradient
+    """ test file_.gradient
     """
     ref_grad = ((0.00004103632, 0.00003409422, 0.00004517889),
                 (0.00004103632, 0.00003409422, 0.00002981129),
@@ -122,7 +122,7 @@ def test__gradient():
                 (0.00004836922, 0.00001142359, 0.00004920290),
                 (0.00002727126, 0.00005906780, 0.00008601663))
 
-    grad_dfile = dfile.gradient(DDIR, 'test')
+    grad_dfile = file_.gradient(DDIR, 'test')
 
     assert not grad_dfile.exists(PREFIX)
     grad_dfile.write(ref_grad, PREFIX)
@@ -134,7 +134,7 @@ def test__gradient():
 
 
 def test__hessian():
-    """ test dfile.hessian
+    """ test file_.hessian
     """
     ref_hess = (
         (-0.21406, 0., 0., -0.06169, 0., 0., 0.27574, 0., 0.),
@@ -151,7 +151,7 @@ def test__hessian():
         (0., -0.20421, 0.19654, 0., 0.12066, -0.05792, 0., 0.08354,
          -0.13862))
 
-    hess_dfile = dfile.hessian(DDIR, 'test')
+    hess_dfile = file_.hessian(DDIR, 'test')
 
     assert not hess_dfile.exists(PREFIX)
     hess_dfile.write(ref_hess, PREFIX)
@@ -163,7 +163,7 @@ def test__hessian():
 
 
 def test__zmatrix():
-    """ test dfile.zmatrix
+    """ test file_.zmatrix
     """
     ref_zma = (
         (('C', (None, None, None), (None, None, None)),
@@ -180,7 +180,7 @@ def test__zmatrix():
          'r5': 1.83126, 'a4': 1.86751, 'd3': 1.44253,
          'r6': 1.83126, 'a5': 1.86751, 'd4': 4.84065})
 
-    zma_dfile = dfile.zmatrix(DDIR, 'test')
+    zma_dfile = file_.zmatrix(DDIR, 'test')
 
     assert not zma_dfile.exists(PREFIX)
     zma_dfile.write(ref_zma, PREFIX)
@@ -192,7 +192,7 @@ def test__zmatrix():
 
 
 def test__vmatrix():
-    """ test dfile.vmatrix
+    """ test file_.vmatrix
     """
     ref_vma = (('C', (None, None, None), (None, None, None)),
                ('O', (0, None, None), ('r1', None, None)),
@@ -202,7 +202,7 @@ def test__vmatrix():
                ('H', (1, 0, 2), ('r5', 'a4', 'd3')),
                ('H', (2, 0, 1), ('r6', 'a5', 'd4')))
 
-    vma_dfile = dfile.vmatrix(DDIR, 'test')
+    vma_dfile = file_.vmatrix(DDIR, 'test')
 
     assert not vma_dfile.exists(PREFIX)
     vma_dfile.write(ref_vma, PREFIX)
@@ -214,7 +214,7 @@ def test__vmatrix():
 
 
 def test__trajectory():
-    """ test dfile.trajectory
+    """ test file_.trajectory
     """
     ref_geos = [
         (('C', (0.0, 0.0, 0.0)),
@@ -236,7 +236,7 @@ def test__trajectory():
 
     ref_traj = list(zip(ref_comments, ref_geos))
 
-    traj_dfile = dfile.trajectory(DDIR, 'test')
+    traj_dfile = file_.trajectory(DDIR, 'test')
 
     assert not traj_dfile.exists(PREFIX)
     traj_dfile.write(ref_traj, PREFIX)
@@ -247,11 +247,11 @@ def test__trajectory():
 
 
 def test__lennard_jones_epsilon():
-    """ test dfile.lennard_jones_epsilon
+    """ test file_.lennard_jones_epsilon
     """
     ref_eps = 247.880866746988
 
-    eps_dfile = dfile.lennard_jones_epsilon(DDIR, 'test')
+    eps_dfile = file_.lennard_jones_epsilon(DDIR, 'test')
 
     assert not eps_dfile.exists(PREFIX)
     eps_dfile.write(ref_eps, PREFIX)
@@ -263,11 +263,11 @@ def test__lennard_jones_epsilon():
 
 
 def test__lennard_jones_sigma():
-    """ test dfile.lennard_jones_sigma
+    """ test file_.lennard_jones_sigma
     """
     ref_sig = 3.55018590361446
 
-    sig_dfile = dfile.lennard_jones_sigma(DDIR, 'test')
+    sig_dfile = file_.lennard_jones_sigma(DDIR, 'test')
 
     assert not sig_dfile.exists(PREFIX)
     sig_dfile.write(ref_sig, PREFIX)

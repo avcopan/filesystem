@@ -3,6 +3,7 @@
 import os
 import glob
 import types
+import itertools
 import autofile
 
 
@@ -55,7 +56,9 @@ class DataDir():
         assert os.path.isdir(prefix)
         cwd = os.getcwd()
         os.chdir(prefix)
-        names = tuple(sorted(glob.glob(os.path.join(*('*' * self.depth)))))
+        names = tuple(sorted(filter(
+            os.path.isdir,
+            glob.glob(os.path.join(*('*' * self.depth))))))
         os.chdir(cwd)
         return names
 
@@ -99,7 +102,7 @@ class DataFile():
         :param reader_: reads data from a string
         :type reader_: callable[str->object]
         """
-        self.ddir = ddir
+        self.dir = ddir
         self.name = name
         self.writer_ = writer_
         self.reader_ = reader_
@@ -107,7 +110,7 @@ class DataFile():
     def path(self, prefix, args=()):
         """ get the file path
         """
-        dir_path = self.ddir.path(prefix, args)
+        dir_path = self.dir.path(prefix, args)
         return os.path.join(dir_path, self.name)
 
     def exists(self, prefix, args=()):
@@ -135,52 +138,58 @@ class DataFile():
     def stacked_over(self, base_ddir):
         """ get a copy of this DataFile stacked over a base DataDir
         """
-        ddir = self.ddir.stacked_over(base_ddir)
+        ddir = self.dir.stacked_over(base_ddir)
         return DataFile(ddir=ddir, name=self.name, writer_=self.writer_,
                         reader_=self.reader_)
 
 
 class DataLayer():
-    """ creates a data file system layer of directories and files """
+    """ a single-layered system of directories and files """
 
-    def __init__(self, ddir, dfiles=()):
+    def __init__(self, ddir, dfile_dct=None):
         """
         :param ddir: a DataDir object
         :param dfiles: a sequence of pairs `(name, obj)` where `obj` is a
-            DataFile instance that will be accessible as `obj.dfile.name`
+            DataFile instance that will be accessible as `obj.file.name`
         """
-        dfiles = tuple(dict(dfiles).items())
+        dfile_dct = {} if dfile_dct is None else dfile_dct
 
         assert isinstance(ddir, DataDir)
-        self.ddir = ddir
-        self.dfile = types.SimpleNamespace()
-        for name, obj in dfiles:
+        self.dir = ddir
+        self.file = types.SimpleNamespace()
+        for name, obj in dfile_dct.items():
+            assert isinstance(name, str)
             assert isinstance(obj, DataFile)
-            setattr(self.dfile, name, obj)
+            setattr(self.file, name, obj)
 
     def stacked_over(self, base_ddir):
         """ get a copy of this DataLayer stacked over a base DataDir
         """
-        ddir = self.ddir.stacked_over(base_ddir)
-        dfiles = [(name, obj.stacked_over(base_ddir))
-                  for name, obj in vars(self.dfile).items()]
-        return DataLayer(ddir=ddir, dfiles=dfiles)
+        ddir = self.dir.stacked_over(base_ddir)
+        dfile_dct = {name: obj.stacked_over(base_ddir)
+                     for name, obj in vars(self.file).items()}
+        return DataLayer(ddir=ddir, dfile_dct=dfile_dct)
 
 
-class DataFileSystem():
-    """ creates a data file system by stacking layers over each another """
+class FileSystem(types.SimpleNamespace):
+    """ a collection of DataLayers """
 
-    def __init__(self, dlayers):
-        """
-        :param dlayers: a sequence of pairs `(name, obj)` where `obj` is a
-            DataLayer instance that will be accessible as `obj.name`
-        """
-        last_obj = None
-        for name, obj in dlayers:
+    def __init__(self, dlayer_dct):
+        for name, obj in dlayer_dct.items():
+            assert isinstance(name, str)
             assert isinstance(obj, DataLayer)
-            obj = obj if last_obj is None else obj.stacked_over(last_obj.ddir)
             setattr(self, name, obj)
-            last_obj = obj
+
+    @staticmethod
+    def by_stacking(dlayer_seq):
+        """ create a FileSystem by stacking DataLayers
+        """
+        names, objs = zip(*dlayer_seq)
+        assert len(set(names)) == len(names)
+        objs = list(itertools.accumulate(
+            objs, (lambda x, y: y.stacked_over(x.dir))))
+        dlayer_dct = dict(zip(names, objs))
+        return FileSystem(dlayer_dct=dlayer_dct)
 
 
 # helpers
