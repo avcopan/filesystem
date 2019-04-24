@@ -2,10 +2,11 @@
 """
 import os
 import glob
+import autoinf
 import autofile
 
 
-class File():
+class DataFile():
     """ file I/O handler for a given datatype """
 
     def __init__(self, name, writer_=(lambda _: _), reader_=(lambda _: _)):
@@ -21,31 +22,31 @@ class File():
         self.writer_ = writer_
         self.reader_ = reader_
 
-    def path(self, dir_path):
+    def path(self, dir_pth):
         """ file path
         """
-        return os.path.join(dir_path, self.name)
+        return os.path.join(dir_pth, self.name)
 
-    def exists(self, dir_path):
+    def exists(self, dir_pth):
         """ does this file exist?
         """
-        pth = self.path(dir_path)
+        pth = self.path(dir_pth)
         return os.path.isfile(pth)
 
-    def write(self, val, dir_path):
-        """ write data to a file
+    def write(self, val, dir_pth):
+        """ write data to this file
         """
-        assert os.path.exists(dir_path)
-        pth = self.path(dir_path)
+        assert os.path.exists(dir_pth)
+        pth = self.path(dir_pth)
         val_str = self.writer_(val)
         autofile.write_file(pth, val_str)
 
-    def read(self, dir_path):
-        """ read data from a file
+    def read(self, dir_pth):
+        """ read data from this file
         """
-        assert self.exists(dir_path)
-        pth = self.path(dir_path)
-        val_str = self.reader_(pth)
+        assert self.exists(dir_pth)
+        pth = self.path(dir_pth)
+        val_str = autofile.read_file(pth)
         val = self.reader_(val_str)
         return val
 
@@ -53,38 +54,35 @@ class File():
 class DataDir():
     """ directory creation manager """
 
-    def __init__(self, map_, nspecs, depth, source_ddir=None):
+    def __init__(self, map_, nspecs, depth, source_ddir=None, spec_dfile=None):
         """
         :param map_: maps `nspecs` specifiers to a segment path consisting of
             `depth` directories
+        :param info_map_: maps `nspecs` specifiers to an information object, to
+            be written in the data directory
         """
         self.map_ = map_
         self.nspecs = nspecs
         self.depth = depth
         self.source = source_ddir
-
-    def segment_path(self, specs=()):
-        """ relative directory path
-        """
-        if self.source is None:
-            assert len(specs) == self.nspecs
-            spth = ''
-        else:
-            assert len(specs) >= self.nspecs
-            sspecs = specs[:-self.nspecs]
-            spth = self.source.segment_path(sspecs)
-            specs = specs[-self.nspecs:]
-
-        pth = self.map_(specs)
-        assert _path_is_relative(pth)
-        assert _path_has_depth(pth, self.depth)
-        return os.path.join(spth, pth)
+        self.spec_dfile = spec_dfile
 
     def path(self, prefix, specs=()):
         """ absolute directory path
         """
-        pfx = os.path.abspath(prefix)
-        pth = self.segment_path(specs)
+        if self.source is None:
+            pfx = prefix
+        else:
+            source_specs = self._source_specifiers(specs)
+            specs = self._self_specifiers(specs)
+            pfx = self.source.path(prefix, source_specs)
+        pfx = os.path.abspath(pfx)
+
+        assert len(specs) == self.nspecs
+
+        pth = self.map_(specs)
+        assert _path_is_relative(pth)
+        assert _path_has_depth(pth, self.depth)
         return os.path.join(pfx, pth)
 
     def exists(self, prefix, specs=()):
@@ -98,25 +96,79 @@ class DataDir():
         """
         assert os.path.isdir(prefix)
         assert not self.exists(prefix, specs)
-        dir_path = self.path(prefix, specs)
-        os.makedirs(dir_path)
+        pth = self.path(prefix, specs)
+        os.makedirs(pth)
 
-    def created_names(self, prefix, specs=()):
+        if self.spec_dfile is not None:
+            self.spec_dfile.write(specs, pth)
+
+    def existing(self, prefix, source_specs=()):
+        """ return the list of specifiers
+        """
+        if self.spec_dfile is None:
+            raise NotImplementedError
+
+        pths = self.existing_paths(prefix, source_specs)
+        specs_lst = tuple(self.spec_dfile.read(pth) for pth in pths)
+        return specs_lst
+
+    def existing_paths(self, prefix, source_specs=()):
         """ names of the directories that have been created at this prefix
         """
         if self.source is None:
             pfx = prefix
         else:
-            pfx = self.source.path(prefix, specs)
+            pfx = self.source.path(prefix, source_specs)
 
         assert os.path.isdir(pfx)
         cwd = os.getcwd()
         os.chdir(pfx)
-        names = tuple(sorted(filter(
-            os.path.isdir,
-            glob.glob(os.path.join(*('*' * self.depth))))))
+        pths = sorted(filter(os.path.isdir,
+                             glob.glob(os.path.join(*('*' * self.depth)))))
+        pths = tuple(os.path.join(pfx, pth) for pth in pths)
         os.chdir(cwd)
-        return names
+        return pths
+
+    # helpers
+    def _self_specifiers(self, specs):
+        assert len(specs) >= self.nspecs
+        return specs[-self.nspecs:]
+
+    def _source_specifiers(self, specs):
+        assert len(specs) >= self.nspecs
+        return specs[:-self.nspecs]
+
+
+class DataDirFile():
+    """ associates a DataFile with specific DataDir """
+
+    def __init__(self, ddir, dfile):
+        self.dir = ddir
+        self.file = dfile
+
+    def path(self, prefix, specs=()):
+        """ absolute file path
+        """
+        dir_pth = self.dir.path(prefix, specs)
+        return self.file.path(dir_pth)
+
+    def exists(self, prefix, specs=()):
+        """ does this file exist?
+        """
+        dir_pth = self.dir.path(prefix, specs)
+        return self.file.exists(dir_pth)
+
+    def write(self, val, prefix, specs=()):
+        """ write data to this file
+        """
+        dir_pth = self.dir.path(prefix, specs)
+        self.file.write(val, dir_pth)
+
+    def read(self, prefix, specs=()):
+        """ read data from this file
+        """
+        dir_pth = self.dir.path(prefix, specs)
+        return self.file.read(dir_pth)
 
 
 # helpers
@@ -149,6 +201,22 @@ def _os_path_split_all(pth):
     return allparts
 
 
+def _specifier_data_file(map_dct_, spec_keys):
+
+    def writer_(specs):
+        inf_dct = {key: map_(specs) for key, map_ in map_dct_.items()}
+        inf_obj = autoinf.object_(inf_dct)
+        return autofile.write.information(inf_obj)
+
+    def reader_(inf_str):
+        inf_obj = autofile.read.information(inf_str)
+        inf_dct = dict(inf_obj)
+        return tuple(map(inf_dct.__getitem__, spec_keys))
+
+    return DataFile(name=autofile.name.information('info'), writer_=writer_,
+                    reader_=reader_)
+
+
 if __name__ == '__main__':
     import autodir.lib
 
@@ -166,19 +234,24 @@ if __name__ == '__main__':
         source_ddir=SPC_TRUNK_DDIR,
     )
 
-    THY_LEAF_DDIR = DataDir(
+    SPEC_DFILE = _specifier_data_file(
+        map_dct_={
+            'method': lambda specs: specs[0],
+            'basis': lambda specs: specs[1],
+            'orb_restricted': lambda specs: specs[2]},
+        spec_keys=['method', 'basis', 'orb_restricted'])
+
+    DDIR = DataDir(
         map_=(lambda x: autodir.lib.map_.theory_leaf(*x)),
         nspecs=3,
         depth=1,
         source_ddir=SPC_LEAF_DDIR,
+        spec_dfile=SPEC_DFILE,
     )
 
-    print(SPC_TRUNK_DDIR.path('.'))
-    print(SPC_LEAF_DDIR.path('.', ['InChI=1S/O', 3]))
-
     SPECS = ['InChI=1S/O', 3, 'hf', 'sto-3g', False]
-    if not THY_LEAF_DDIR.exists('.', SPECS):
-        THY_LEAF_DDIR.create('.', SPECS)
+    if not DDIR.exists('.', SPECS):
+        DDIR.create('.', SPECS)
 
     print()
-    print(THY_LEAF_DDIR.created_names('.', SPECS[:2]))
+    print(DDIR.existing('.', SPECS[:2]))
