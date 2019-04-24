@@ -1,15 +1,7 @@
-""" libraries of DataFiles, DataDirs, DataLayers, DataFileSystems
+""" a library of filesystem objects
 """
-from autodir.lib import info
-from autodir.lib import name
-from autodir.lib import dir_
-from autodir.lib import file_
-from autodir.lib import layer
+from autodir.lib import map_
 
 __all__ = [
-    'info',
-    'name',
-    'dir_',
-    'file_',
-    'layer',
+    'map_',
 ]

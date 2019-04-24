@@ -1,25 +1,11 @@
-""" defines standard directory paths for quantum chemistry data
+""" autodir: defines standard directory paths for quantum chemistry data
 """
-# filesystem modules
-from autodir import species
-from autodir import theory
-from autodir import spth
-from autodir import run
-from autodir import conf
-from autodir import scan
-from autodir import lj
-# helper modules
-from autodir import id_
-
+from autodir import factory
+from autodir import lib
+from autodir._fsys import filesystem
 
 __all__ = [
-    # modules
-    'species',
-    'theory',
-    'spth',
-    'run',
-    'conf',
-    'lj',
-    # functions
-    'id_',
+    'factory',
+    'lib',
+    'filesystem'
 ]
