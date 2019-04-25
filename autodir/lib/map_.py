@@ -68,7 +68,7 @@ def conformer_leaf(cid):
     return cid
 
 
-def new_conformer_id():
+def generate_new_conformer_id():
     """ generate a new conformer identifier
     """
     return _random_string_identifier()

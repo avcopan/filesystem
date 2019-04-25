@@ -54,7 +54,8 @@ class DataSeriesDir():
     """ directory manager mapping specifier values to a directory series
     """
 
-    def __init__(self, map_, nspecs, depth, spec_dfile=None):
+    def __init__(self, map_, nspecs, depth, spec_dfile=None,
+                 source_dsdir=None):
         """
         :param map_: maps `nspecs` specifiers to a segment path consisting of
             `depth` directories
@@ -65,12 +66,7 @@ class DataSeriesDir():
         self.nspecs = nspecs
         self.depth = depth
         self.spec_dfile = spec_dfile
-        self.source = None
-
-    def set_source(self, dsdir):
-        """ set the source DataSeriesDir
-        """
-        self.source = dsdir
+        self.source = source_dsdir
 
     def path(self, prefix, specs=()):
         """ absolute directory path
@@ -118,10 +114,11 @@ class DataSeriesDir():
         """ return the list of specifiers
         """
         if self.spec_dfile is None:
-            raise NotImplementedError
+            raise ValueError("This function does not work "
+                             "without a specifier DataFile")
 
         pths = self.existing_paths(prefix, source_specs)
-        specs_lst = tuple(self.spec_dfile.read(pth) for pth in pths)
+        specs_lst = tuple(sorted(self.spec_dfile.read(pth) for pth in pths))
         return specs_lst
 
     def existing_paths(self, prefix, source_specs=()):
@@ -136,7 +133,7 @@ class DataSeriesDir():
         assert os.path.isdir(pfx)
 
         pth_pattern = os.path.join(pfx, *('*' * self.depth))
-        pths = sorted(filter(os.path.isdir, glob.glob(pth_pattern)))
+        pths = filter(os.path.isdir, glob.glob(pth_pattern))
         pths = tuple(os.path.join(pfx, pth) for pth in pths)
         return pths
 
@@ -144,14 +141,18 @@ class DataSeriesDir():
     def _self_specifiers(self, specs):
         """ specifiers for this DataSeriesDir
         """
-        assert len(specs) >= self.nspecs
-        return specs[-self.nspecs:]
+        nspecs = len(specs)
+        assert nspecs >= self.nspecs
+        source_nspecs = nspecs - self.nspecs
+        return specs[source_nspecs:]
 
     def _source_specifiers(self, specs):
         """ specifiers for the source DataSeriesDir, if there is one
         """
-        assert len(specs) >= self.nspecs
-        return specs[:-self.nspecs]
+        nspecs = len(specs)
+        assert nspecs >= self.nspecs
+        source_nspecs = nspecs - self.nspecs
+        return specs[:source_nspecs]
 
 
 class DataSeriesFile():
@@ -218,51 +219,16 @@ def _os_path_split_all(pth):
 
 
 if __name__ == '__main__':
-    import automol
     import autodir.lib
 
-    SPC_LEAF_SPEC_DFILE = autodir.lib.file_.data_series_specifier(
-        'info',
-        map_dct_={
-            'inchi': lambda specs: specs[0],
-            'smiles': lambda specs: automol.inchi.smiles(specs[0]),
-            'multiplicity': lambda specs: specs[1]},
-        spec_keys=['inchi', 'multiplicity'])
-
-    SPC_TRUNK_DSDIR = DataSeriesDir(
-        map_=(lambda x: autodir.lib.map_.species_trunk(*x)),
-        nspecs=0,
-        depth=1,
-    )
-
-    SPC_LEAF_DSDIR = DataSeriesDir(
-        map_=(lambda x: autodir.lib.map_.species_leaf(*x)),
-        nspecs=2,
-        depth=4,
-        spec_dfile=SPC_LEAF_SPEC_DFILE,
-    )
-    SPC_LEAF_DSDIR.set_source(SPC_TRUNK_DSDIR)
-
-    SPEC_DFILE = autodir.lib.file_.data_series_specifier(
-        'info',
-        map_dct_={
-            'method': lambda specs: specs[0],
-            'basis': lambda specs: specs[1],
-            'orb_restricted': lambda specs: specs[2]},
-        spec_keys=['method', 'basis', 'orb_restricted'])
-
-    DSDIR = DataSeriesDir(
-        map_=(lambda x: autodir.lib.map_.theory_leaf(*x)),
-        nspecs=3,
-        depth=1,
-        spec_dfile=SPEC_DFILE,
-    )
-    DSDIR.set_source(SPC_LEAF_DSDIR)
+    SPC_TRUNK_DSDIR = autodir.lib.dir_.species_trunk()
+    SPC_LEAF_DSDIR = autodir.lib.dir_.species_leaf(SPC_TRUNK_DSDIR)
+    THY_LEAF_DSDIR = autodir.lib.dir_.theory_leaf(SPC_LEAF_DSDIR)
 
     SPECS = ['InChI=1S/O', 3, 'hf', 'sto-3g', False]
-    if not DSDIR.exists('.', SPECS):
-        DSDIR.create('.', SPECS)
+    if not THY_LEAF_DSDIR.exists('.', SPECS):
+        THY_LEAF_DSDIR.create('.', SPECS)
 
     print()
     print(SPC_LEAF_DSDIR.existing('.'))
-    print(DSDIR.existing('.', SPECS[:2]))
+    print(THY_LEAF_DSDIR.existing('.', SPECS[:2]))

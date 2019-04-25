@@ -24,22 +24,22 @@ def test__species():
         ('InChI=1S/C5H5O/c1-2-3-4-5-6/h1-5H/b4-3-', 2),
     ]
 
-    fs_ = autodir.filesystem()
+    # fs_ = autodir.filesystem()
 
-    for args in args_lst:
-        assert not fs_.species.dir.exists(prefix, args)
-        assert not fs_.species.file.info.exists(prefix, args)
-        fs_.species.dir.create(prefix, args)
-        assert fs_.species.dir.exists(prefix, args)
-        assert fs_.species.file.info.exists(prefix, args)
+    # for args in args_lst:
+    #     assert not fs_.species.dir.exists(prefix, args)
+    #     assert not fs_.species.file.info.exists(prefix, args)
+    #     fs_.species.dir.create(prefix, args)
+    #     assert fs_.species.dir.exists(prefix, args)
+    #     assert fs_.species.file.info.exists(prefix, args)
 
-    assert fs_.species.dir.created_names(prefix) == (
-        'SPC/C2H2F2/WFLOTYSKFUPZQB/1/OWOJBTED',
-        'SPC/C2H2F2/WFLOTYSKFUPZQB/1/UPHRSURJ',
-        'SPC/C5H5O/ZMKDIXNSHZUDML/2/ARJAWSKD',
-        'SPC/O/QVGXLLKOCUKJST/1/UHFFFAOY',
-        'SPC/O/QVGXLLKOCUKJST/3/UHFFFAOY'
-    )
+    # assert fs_.species.dir.created_names(prefix) == (
+    #     'SPC/C2H2F2/WFLOTYSKFUPZQB/1/OWOJBTED',
+    #     'SPC/C2H2F2/WFLOTYSKFUPZQB/1/UPHRSURJ',
+    #     'SPC/C5H5O/ZMKDIXNSHZUDML/2/ARJAWSKD',
+    #     'SPC/O/QVGXLLKOCUKJST/1/UHFFFAOY',
+    #     'SPC/O/QVGXLLKOCUKJST/3/UHFFFAOY'
+    # )
 
 
 def test__theory():
@@ -56,18 +56,18 @@ def test__theory():
         spc_args + ('b3lyp', '6-31g*', False),
     ]
 
-    fs_ = autodir.filesystem()
+    # fs_ = autodir.filesystem()
 
-    for args in args_lst:
-        assert not fs_.theory.dir.exists(prefix, args)
-        assert not fs_.theory.file.info.exists(prefix, args)
-        fs_.theory.dir.create(prefix, args)
-        assert fs_.theory.dir.exists(prefix, args)
-        assert fs_.theory.file.info.exists(prefix, args)
+    # for args in args_lst:
+    #     assert not fs_.theory.dir.exists(prefix, args)
+    #     assert not fs_.theory.file.info.exists(prefix, args)
+    #     fs_.theory.dir.create(prefix, args)
+    #     assert fs_.theory.dir.exists(prefix, args)
+    #     assert fs_.theory.file.info.exists(prefix, args)
 
-    print(fs_.theory.dir.created_names(prefix))
-    # assert fs_.theory.dir.created_names(prefix, spc_args) == (
-    #     '_0gh69R', '_0gh69U', 'ezvh69R', 'ezvh69U', 'ezvlpJR', 'ezvlpJU')
+    # print(fs_.theory.dir.created_names(prefix))
+    # # assert fs_.theory.dir.created_names(prefix, spc_args) == (
+    # #     '_0gh69R', '_0gh69U', 'ezvh69R', 'ezvh69U', 'ezvlpJR', 'ezvlpJU')
 
 
 def test__conformer():
