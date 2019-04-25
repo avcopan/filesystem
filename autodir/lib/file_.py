@@ -6,7 +6,11 @@ import autoinf
 
 
 def information(file_prefix, function=None):
-    """ generate information DataFile
+    """ information DataFile
+
+    :param function: optional information-generator function, for checking the
+        function signature against the information object
+    :type function: callable
     """
     def writer_(inf_obj):
         if function is not None:
@@ -19,6 +23,35 @@ def information(file_prefix, function=None):
         if function is not None:
             assert autoinf.matches_function_signature(inf_obj, function)
         return inf_obj
+
+    name = autofile.name.information(file_prefix)
+    return model.DataFile(name=name, writer_=writer_, reader_=reader_)
+
+
+def data_series_specifier(file_prefix, map_dct_, spec_keys):
+    """ data series specifier DataFile
+
+    Specifiers are stored in information files according to `map_dct_` and read
+    back out according to `spec_keys_`. The file may contain auxiliary
+    information (such as SMILES along with InChI), but for the read to work it
+    must contain each specifier value.
+
+    :param map_dct_: Maps on the specifier list to the values stored in the
+        information file, by key.
+    :type map_dct_: dict[key: callable]
+    :param spec_keys: Keys to the original specifier values.
+    :type spec_keys: tuple[str]
+    """
+
+    def writer_(specs):
+        inf_dct = {key: map_(specs) for key, map_ in map_dct_.items()}
+        inf_obj = autoinf.object_(inf_dct)
+        return autofile.write.information(inf_obj)
+
+    def reader_(inf_str):
+        inf_obj = autofile.read.information(inf_str)
+        inf_dct = dict(inf_obj)
+        return tuple(map(inf_dct.__getitem__, spec_keys))
 
     name = autofile.name.information(file_prefix)
     return model.DataFile(name=name, writer_=writer_, reader_=reader_)
